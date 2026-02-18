@@ -1,12 +1,12 @@
-name: Build, test and check formatting. 
+name: Build, test and check formatting.
 on:
   push:
-    branches: ['main']
+    branches: ["main"]
   pull_request:
     branches:
-      - 'main'
-      - 'feature/*'
-      - 'fix/*'
+      - "main"
+      - "feature/*"
+      - "fix/*"
 jobs:
   build:
     name: Build

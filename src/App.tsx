@@ -1,4 +1,4 @@
-import './App.css'
+import "./App.css";
 
 function App() {
   return (
@@ -6,10 +6,13 @@ function App() {
       <h1>Crossword Game Under Construction</h1>
 
       <p className="footer">
-        Made by <a href="https://docs.nouse.co.uk/pages/15%20tech-team.html">Nouse Tech</a>
+        Made by{" "}
+        <a href="https://docs.nouse.co.uk/pages/15%20tech-team.html">
+          Nouse Tech
+        </a>
       </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
