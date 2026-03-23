@@ -36,18 +36,16 @@
         "0","0","0","0","0","0","0","0","0","0","0","0","0","0","0",
         "0","0","0","0","0","0","0","0","0","0","0","0","0","0","0",
         "0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"
-    ],
+    ], 
 
     "hints" : {
         "across" : [
             {"number": 1, "clue": "When dirt and rain mix", "word": "mud"},
-            {"number": 5, "clue": "The inverse of monotone", "word": "colourful"},
-            {"number": 2, "clue": "Geniuses of war, have colonised all but 1 continent", "word": "ant"}
+            {"number": 3, "clue": "The inverse of monotone", "word": "colourful"},
+            {"number": 5, "clue": "Geniuses of war, have colonised all but 1 continent", "word": "ant"}
         ],
         "down" : [
-            {"number": 1, "clue": "A vital part of a home, or rather the absence of it", "word": "doorway"}
+            {"number": 2, "clue": "A vital part of a home, or rather the absence of it", "word": "doorway"}
         ]
     }
-
-
 }
