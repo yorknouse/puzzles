@@ -1,5 +1,5 @@
 import "./App.css";
-import CrosswordGame from "./Crossword Components/CrosswordGame";
+import CrosswordGame from "./CrosswordGame";
 
 function App() {
   return (
@@ -10,4 +10,3 @@ function App() {
 }
 
 export default App;
-
