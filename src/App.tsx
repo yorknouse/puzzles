@@ -1,16 +1,10 @@
 import "./App.css";
+import CrosswordGame from "./Crossword Components/CrosswordGame";
 
 function App() {
   return (
     <>
-      <h1>Crossword Game Under Construction</h1>
-
-      <p className="footer">
-        Made by{" "}
-        <a href="https://docs.nouse.co.uk/pages/15%20tech-team.html">
-          Nouse Tech
-        </a>
-      </p>
+      <CrosswordGame />
     </>
   );
 }
