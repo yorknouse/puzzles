@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import type { CrosswordPuzzle} from './crossword';
-import puzzle1 from '../Crosswords/Puzzle1.json';
+import puzzle1 from './Crosswords/Puzzle1.json';
 
 type Props = {
     puzzle?: CrosswordPuzzle;  // pass a puzzle as a prop to be used, otherwise deafulting to puzzle1
