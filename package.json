@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://yorknouse.github.io/puzzles/",
+  "homepage": "https://puzzles.nouse.co.uk",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "format": "prettier . --write",
     "format-check": "prettier . --check",
+    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
