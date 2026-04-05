@@ -1,27 +1,30 @@
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+  /* max-width: 1280px; */
+  /* margin: 0 auto; */
+  /* padding: 2rem; */
   text-align: center;
 }
 
 .footer {
-  margin-top: 1.5rem;
+  margin-top: 96.5vh;
+  font-size: 1vw;
   color: #888;
 }
 
 .crossword {
   display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 9rem;
+  /* align-items: flex-start; */
+  /* justify-content: flex-start; */
+  gap: 5vw;
   margin-left: 2%;
   max-width: none;
+  align-items: flex-start;
 }
 
 .grid {
   display: inline-block;
-  border: 0.01rem solid #444;
+  border: 1px solid #444;
   flex-shrink: 0;
 }
 
@@ -30,19 +33,25 @@
 }
 
 .cell {
-  width: 3.1rem;
-  height: 3.1rem;
-  border: 0.01rem solid #747272;
+  width: 2.5vw;
+  height: 2.5vw;
+  min-width: 25px;
+  min-height: 25px;
+  border: 1px solid #747272;
   box-sizing: border-box;
   position: relative;
   background: #eee4cc;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .cell-number {
   position: absolute;
-  top: 0px;
-  left: 0.01rem;
-  font-size: 0.85rem;
+  top: -0.3em;
+  left: 0.1em;
+  font-size: 0.85vw;
   color: #222;
   pointer-events: none;
 }
@@ -58,7 +67,9 @@
   border: none;
   text-transform: uppercase;
   text-align: center;
-  font-size: 2rem;
+  font-size: 1.5vw;
+  font-weight: 400;
+  font-family: inherit;
   background: transparent;
   color: #000;
   outline: none;
@@ -70,17 +81,22 @@
   align-items: center;
   gap: 0.5rem;
   justify-content: flex-start;
-  margin-bottom: 0.5rem;
-  margin-left: 15rem;
+  margin-left: 12vw;
+  margin-top: 3.5vh;
+  position: absolute;
 }
 
 .controls button {
-  padding: 0.5rem 1rem;
+  height: 5vh;
+  width: 8vw;
   background: #111;
   color: #fff;
   border: 1px solid #666;
   cursor: pointer;
   margin: 0;
+  font-size: 0.9vw;
+  font-family: inherit;
+  line-height: 1.5;
 }
 
 .controls button:hover {
@@ -95,7 +111,7 @@
 
 .controls p {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.5vw;
   color: rgb(0, 0, 0);
 }
 .innerbackground {
@@ -120,23 +136,23 @@
 }
 
 .crossword-title {
-  font-size: 2rem;
+  font-size: 2.2vw;
   margin-bottom: 0rem;
-  font-family: "Times New Roman", Times, serif;
+  font-family: "Times New Roman", "Times New Roman", serif;
   color: black;
-  font-weight: bolder;
-  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .clues {
   display: flex;
-  gap: 0rem;
+  gap: 2vw;
   color: black;
-  font-family: "Times New Roman", Times, serif;
-  font-size: 1.2rem;
+  font-family: "Times New Roman", "Times New Roman", serif;
+  font-size: 1.2vw;
   justify-content: flex-start;
   align-items: flex-start;
-  flex: 1 1 40rem;
+  /* flex: 1 1 40rem; */
 }
 
 .clues .clue-column {
@@ -144,16 +160,16 @@
   list-style-type: none;
   display: flex;
   flex-direction: column;
-
-  width: 30rem;
+  width: 24vw;
 }
 
 .clue-title {
-  font-size: 2.4rem;
+  font-size: 2vw;
   margin-bottom: 0.5rem;
-  font-family: "Times New Roman", Times, serif;
+  font-family: "Times New Roman", "Times New Roman", serif;
   color: black;
-  font-weight: bolder;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .title-container {

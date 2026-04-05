@@ -1,7 +1,6 @@
 export interface CrosswordPuzzle {
   title: string;
   size: number;
-  workingGrid: string[];
   answerGrid: string[];
   hints: Hints;
 }
@@ -16,3 +15,4 @@ export interface Hints {
   across: ClueEntry[];
   down: ClueEntry[];
 }
+

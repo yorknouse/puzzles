@@ -14,12 +14,15 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]); //navigate between cells using arrrow keys
 
   // Convert flat grid to 2D array for rendering
-  const sourceGrid = puzzle.workingGrid; // I think we should only pre-defined answer grid, and build working grid using it. Will update later
+
+  const answerGrid = puzzle.answerGrid;
+
+  const workingGridBuilder: string[] = answerGrid.map((value: string) => value !== "0" ? "1" : "0" ); // build a working grid from the answer grid
+  const sourceGrid = workingGridBuilder;
   const [workingGrid, setWorkingGrid] = useState<string[]>(() =>
     sourceGrid.map((cell) => (cell === "0" ? "0" : "")),
   );
 
-  const answerGrid = puzzle.answerGrid;
   const rows: string[][] = [];
   const sourceRows: string[][] = [];
 
@@ -85,11 +88,27 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
     r: number,
     c: number,
     e: React.KeyboardEvent<HTMLInputElement>,
+    //moving left kind of thing??
   ) => {
     let newR = r;
     let newC = c;
 
     switch (e.key) {
+      case "Backspace":
+            setWorkingGrid(workingGrid => {
+            const newGrid = [...workingGrid];
+            newGrid[r * size + c] = ""; // remove letter in current cell
+            return newGrid;
+          });
+        if (workingGrid[(r * size + c) - 1] != "0" && (workingGrid[(r * size + c) + 1] == "0" || workingGrid[(r * size + c) + 1] == "")){
+          newC = Math.max(0, c - 1);
+        }
+        else{
+          if(workingGrid[(r * size + c) - size] != "0" && (workingGrid[(r * size + c) + size] == "0" || workingGrid[(r * size + c) + size] == "")){
+            newR = Math.max(0, r - 1);
+          }  
+        }
+        break;
       case "ArrowUp":
         newR = Math.max(0, r - 1);
         break;
@@ -105,6 +124,7 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
       default:
         return; // exit if it's not an arrow key
     }
+
 
     const newIndex = newR * size + newC;
 
@@ -211,13 +231,13 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
             </div>
           </div>
         </div>
-        <p className="footer">
+      </div>
+      <p className="footer">
           Made by{" "}
           <a href="https://docs.nouse.co.uk/pages/15%20tech-team.html">
             Nouse Tech
           </a>
         </p>
-      </div>
     </div>
   );
 }
