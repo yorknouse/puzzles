@@ -10,6 +10,10 @@
   margin-top: 96.5vh;
   font-size: 1vw;
   color: #888;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
 }
 
 .crossword {
@@ -142,6 +146,8 @@
   color: black;
   font-weight: 700;
   line-height: 1.2;
+  margin-top: 1.5vh;
+  margin-bottom: 2vh; 
 }
 
 .clues {
@@ -153,6 +159,7 @@
   justify-content: flex-start;
   align-items: flex-start;
   /* flex: 1 1 40rem; */
+  margin-top: -3vh;
 }
 
 .clues .clue-column {
@@ -177,4 +184,15 @@
   flex-direction: column;
   margin-bottom: 0rem;
   position: relative;
+}
+
+.puzzles-title {
+  font-size: 5vw;
+  margin-bottom: 0rem;
+  font-family: "Times New Roman", "Times New Roman", serif;
+  color: black;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 1.5vh;
+  margin-bottom: 2vh; 
 }
