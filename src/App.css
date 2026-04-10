@@ -1,4 +1,3 @@
-
 #root {
   /* max-width: 1280px; */
   /* margin: 0 auto; */
@@ -118,7 +117,7 @@
   font-size: 1.5vw;
   color: rgb(0, 0, 0);
 }
-.innerbackground {
+.innerbackgroundcrossword {
   position: fixed;
   top: 4%;
   left: 2%;
@@ -130,7 +129,7 @@
   border-width: 3px;
 }
 
-.outerbackground {
+.outerbackgroundcrossword {
   position: fixed;
   top: 0;
   left: 0;
@@ -147,7 +146,7 @@
   font-weight: 700;
   line-height: 1.2;
   margin-top: 1.5vh;
-  margin-bottom: 2vh; 
+  margin-bottom: 2vh;
 }
 
 .clues {
@@ -190,9 +189,43 @@
   font-size: 5vw;
   margin-bottom: 0rem;
   font-family: "Times New Roman", "Times New Roman", serif;
-  color: black;
-  font-weight: 700;
+  color: white;
+  font-weight: 10;
   line-height: 1.2;
-  margin-top: 1.5vh;
-  margin-bottom: 2vh; 
+  margin-top: 4.5vh;
+}
+
+.outerbackgroundhome {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: white;
+}
+
+.topbannerhome {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 21.5%;
+  background: black;
+  border: solid;
+  border-color: black;
+  border-width: 3px;
+}
+
+.puzzle-name {
+  font-size: 4vw;
+  margin-bottom: 0rem;
+  font-family: "Times New Roman", "Times New Roman", serif;
+  color: black;
+  font-weight: 10;
+  line-height: 1.2;
+  margin-top: 4.5vh;
+}
+
+.puzzles-container {
+  margin-top: 25vh;
 }

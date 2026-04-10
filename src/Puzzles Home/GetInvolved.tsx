@@ -1,12 +1,12 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 
-export default function Home() {
+export default function GetInvolved() {
   return (
     <div className="outerbackgroundhome">
       <div className="topbannerhome">
         <div className="title-container">
-          <h1 className="puzzles-title">Nouse Puzzles</h1>
+          <h1 className="puzzles-title">Getting Involved with Nouse Tech</h1>
         </div>
       </div>
 
