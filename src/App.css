@@ -227,7 +227,7 @@
   display: flex;
   justify-content: center;
   background: rgb(94, 50, 130);
-   /* rgb(114, 3, 63); */
+  /* rgb(114, 3, 63); */
   position: fixed;
   top: 6.8vh;
   width: 100%;
@@ -253,7 +253,7 @@
   left: 0;
   width: 100%;
   height: 3px;
-  background:rgb(94, 50, 130);;
+  background: rgb(94, 50, 130);
 }
 
 .nav-link-active {
@@ -282,9 +282,9 @@
   font-weight: 700;
   line-height: 1.2;
   margin-top: -6rem;
- }
+}
 
- .home-description {
+.home-description {
   font-size: clamp(1rem, 1.5vw, 1.75rem);
   color: black;
   font-family: "Times New Roman", serif;
@@ -292,28 +292,28 @@
   width: 60%;
   line-height: 1.4;
   margin-bottom: 2rem;
-  }
+}
 
-  .qr-code {
-    width: 15vw;
-    height: auto;
-    margin-top: -3rem;
-  }
+.qr-code {
+  width: 15vw;
+  height: auto;
+  margin-top: -3rem;
+}
 
-  .muse-logo {
-    width: 4.5rem;
-    height: auto;
-    margin-bottom: -0.5rem;
-  }
+.muse-logo {
+  width: 4.5rem;
+  height: auto;
+  margin-bottom: -0.5rem;
+}
 
-  .return-home {
-    position: absolute;
-    top: 0rem;
-    right: 4.5vw;
-    font-size: clamp(1rem, 1.5vw, 2rem);
-    color: black;
-    font-family: "Times New Roman", serif;
-  }
+.return-home {
+  position: absolute;
+  top: 0rem;
+  right: 4.5vw;
+  font-size: clamp(1rem, 1.5vw, 2rem);
+  color: black;
+  font-family: "Times New Roman", serif;
+}
 
 .crosswords-container {
   margin-top: 5vh;

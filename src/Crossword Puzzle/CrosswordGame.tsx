@@ -190,7 +190,9 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
               <p>{isCorrect ? "Correct!" : "Not quite it!"}</p>
             )}
           </div>
-          <Link to="/" className="return-home"><h2 className="return-home">Home</h2></Link>
+          <Link to="/" className="return-home">
+            <h2 className="return-home">Home</h2>
+          </Link>
         </div>
         <div className="crossword">
           {/* Grid rendering */}
