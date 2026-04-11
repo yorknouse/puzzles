@@ -1,6 +1,11 @@
 import { useState, useRef } from "react";
 import type { CrosswordPuzzle } from "./crossword";
-import puzzle1 from "./Crosswords/puzzle1.json";
+import { Link } from "react-router-dom";
+
+const bob = "./Crosswords/puzzle1.json";
+
+const puzzles = import.meta.glob("./Crosswords/*.json", { eager: true });
+const puzzle1 = puzzles[bob] as CrosswordPuzzle;
 
 type Props = {
   puzzle?: CrosswordPuzzle; // pass a puzzle as a prop to be used, otherwise deafulting to puzzle1
@@ -185,6 +190,7 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
               <p>{isCorrect ? "Correct!" : "Not quite it!"}</p>
             )}
           </div>
+          <Link to="/" className="return-home"><h2 className="return-home">Home</h2></Link>
         </div>
         <div className="crossword">
           {/* Grid rendering */}
