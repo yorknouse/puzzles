@@ -1,6 +1,11 @@
 import { useState, useRef } from "react";
 import type { CrosswordPuzzle } from "./crossword";
-import puzzle1 from "./Crosswords/puzzle1.json";
+import { Link } from "react-router-dom";
+
+const bob = "./Crosswords/puzzle1.json";
+
+const puzzles = import.meta.glob("./Crosswords/*.json", { eager: true });
+const puzzle1 = puzzles[bob] as CrosswordPuzzle;
 
 type Props = {
   puzzle?: CrosswordPuzzle; // pass a puzzle as a prop to be used, otherwise deafulting to puzzle1
@@ -14,12 +19,17 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]); //navigate between cells using arrrow keys
 
   // Convert flat grid to 2D array for rendering
-  const sourceGrid = puzzle.workingGrid; // I think we should only pre-defined answer grid, and build working grid using it. Will update later
+
+  const answerGrid = puzzle.answerGrid;
+
+  const workingGridBuilder: string[] = answerGrid.map((value: string) =>
+    value !== "0" ? "1" : "0",
+  ); // build a working grid from the answer grid
+  const sourceGrid = workingGridBuilder;
   const [workingGrid, setWorkingGrid] = useState<string[]>(() =>
     sourceGrid.map((cell) => (cell === "0" ? "0" : "")),
   );
 
-  const answerGrid = puzzle.answerGrid;
   const rows: string[][] = [];
   const sourceRows: string[][] = [];
 
@@ -85,11 +95,34 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
     r: number,
     c: number,
     e: React.KeyboardEvent<HTMLInputElement>,
+    //moving left kind of thing??
   ) => {
     let newR = r;
     let newC = c;
 
     switch (e.key) {
+      case "Backspace":
+        setWorkingGrid((workingGrid) => {
+          const newGrid = [...workingGrid];
+          newGrid[r * size + c] = ""; // remove letter in current cell
+          return newGrid;
+        });
+        if (
+          workingGrid[r * size + c - 1] != "0" &&
+          (workingGrid[r * size + c + 1] == "0" ||
+            workingGrid[r * size + c + 1] == "")
+        ) {
+          newC = Math.max(0, c - 1);
+        } else {
+          if (
+            workingGrid[r * size + c - size] != "0" &&
+            (workingGrid[r * size + c + size] == "0" ||
+              workingGrid[r * size + c + size] == "")
+          ) {
+            newR = Math.max(0, r - 1);
+          }
+        }
+        break;
       case "ArrowUp":
         newR = Math.max(0, r - 1);
         break;
@@ -147,8 +180,8 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
   return (
     //HTML Section
 
-    <div className="outerbackground">
-      <div className="innerbackground">
+    <div className="outerbackgroundcrossword">
+      <div className="innerbackgroundcrossword">
         <div className="title-container">
           <h1 className="crossword-title">CROSSWORD</h1>
           <div className="controls">
@@ -157,6 +190,9 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
               <p>{isCorrect ? "Correct!" : "Not quite it!"}</p>
             )}
           </div>
+          <Link to="/" className="return-home">
+            <h2 className="return-home">Home</h2>
+          </Link>
         </div>
         <div className="crossword">
           {/* Grid rendering */}
@@ -211,13 +247,13 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
             </div>
           </div>
         </div>
-        <p className="footer">
-          Made by{" "}
-          <a href="https://docs.nouse.co.uk/pages/15%20tech-team.html">
-            Nouse Tech
-          </a>
-        </p>
       </div>
+      <p className="footer">
+        Made by{" "}
+        <a href="https://docs.nouse.co.uk/pages/15%20tech-team.html">
+          Nouse Tech
+        </a>
+      </p>
     </div>
   );
 }

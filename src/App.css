@@ -1,67 +1,57 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+/* ─── Backgrounds ─────────────────────────────────────── */
+
+.outerbackgroundcrossword {
+  position: fixed;
+  inset: 0;
+  background: #eee4cc;
 }
 
-.footer {
-  margin-top: 1.5rem;
-  color: #888;
+.innerbackgroundcrossword {
+  position: fixed;
+  top: 4%;
+  left: 2%;
+  width: 96%;
+  height: 92%;
+  background: #e6d3a3;
+  border: 3px solid #d6c18a;
+}
+
+.outerbackgroundhome {
+  position: fixed;
+  inset: 0;
+  background: white;
+}
+
+.topbannerhome {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6.5vh;
+  background: rgb(94, 50, 130);
+  border: 3px solid rgb(94, 50, 130);
+}
+
+/* ─── Layout ──────────────────────────────────────────── */
+
+#root {
+  text-align: center;
 }
 
 .crossword {
   display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 9rem;
+  gap: 3vw;
   margin-left: 2%;
-  max-width: none;
+  align-items: flex-start;
 }
 
-.grid {
-  display: inline-block;
-  border: 0.01rem solid #444;
-  flex-shrink: 0;
-}
-
-.row {
+.clues .clue-column {
+  text-align: left;
+  list-style-type: none;
   display: flex;
-}
-
-.cell {
-  width: 3.1rem;
-  height: 3.1rem;
-  border: 0.01rem solid #747272;
-  box-sizing: border-box;
-  position: relative;
-  background: #eee4cc;
-}
-
-.cell-number {
-  position: absolute;
-  top: 0px;
-  left: 0.01rem;
-  font-size: 0.85rem;
-  color: #222;
-  pointer-events: none;
-}
-
-.cell.blocked {
-  background: #222;
-  border-color: #222;
-}
-
-.cell input {
-  width: 100%;
-  height: 100%;
-  border: none;
-  text-transform: uppercase;
-  text-align: center;
-  font-size: 2rem;
-  background: transparent;
-  color: #000;
-  outline: none;
+  flex-direction: column;
+  width: 24vw;
+  /* intentional — ties column width to viewport */
 }
 
 .controls {
@@ -70,17 +60,82 @@
   align-items: center;
   gap: 0.5rem;
   justify-content: flex-start;
-  margin-bottom: 0.5rem;
-  margin-left: 15rem;
+  margin-left: 12vw;
+  /* intentional — aligns with grid position */
+  margin-top: 1.5rem;
+  position: absolute;
 }
 
+.puzzles-container {
+  margin-top: 25vh;
+  /* intentional — offsets below fixed banner */
+}
+
+/* ─── Grid & cells ────────────────────────────────────── */
+
+.grid {
+  display: inline-block;
+  border: 1px solid #444;
+  flex-shrink: 0;
+}
+
+.row {
+  display: flex;
+}
+
+.cell {
+  width: clamp(25px, 2.7vw, 80px);
+  height: clamp(25px, 2.7vw, 60px);
+  border: 1px solid #747272;
+  box-sizing: border-box;
+  position: relative;
+  background: #eee4cc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cell.blocked {
+  background: #222;
+  border-color: #222;
+}
+
+.cell-number {
+  position: absolute;
+  top: -0.3em;
+  left: 0.1em;
+  font-size: clamp(9px, 1vw, 20px);
+  color: #222;
+  pointer-events: none;
+}
+
+.cell input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: clamp(12px, 2vw, 35px);
+  font-weight: 400;
+  font-family: inherit;
+  background: transparent;
+  color: #000;
+  outline: none;
+}
+
+/* ─── Buttons ─────────────────────────────────────────── */
+
 .controls button {
-  padding: 0.5rem 1rem;
+  height: 3rem;
+  width: 10rem;
   background: #111;
   color: #fff;
   border: 1px solid #666;
   cursor: pointer;
   margin: 0;
+  font-size: 1.1rem;
+  font-family: inherit;
+  line-height: 1.5;
 }
 
 .controls button:hover {
@@ -95,70 +150,216 @@
 
 .controls p {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   color: rgb(0, 0, 0);
 }
-.innerbackground {
-  position: fixed;
-  top: 4%;
-  left: 2%;
-  width: 96%;
-  height: 92%;
-  background: #e6d3a3;
-  border: solid;
-  border-color: #d6c18a;
-  border-width: 3px;
-}
 
-.outerbackground {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #eee4cc;
-}
+/* ─── Typography ──────────────────────────────────────── */
 
 .crossword-title {
-  font-size: 2rem;
-  margin-bottom: 0rem;
-  font-family: "Times New Roman", Times, serif;
+  font-size: clamp(1.25rem, 2.2vw, 3rem);
+  font-family: "Times New Roman", serif;
   color: black;
-  font-weight: bolder;
-  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.clue-title {
+  font-size: clamp(1.25rem, 2vw, 2.5rem);
+  margin-bottom: 0.5rem;
+  font-family: "Times New Roman", serif;
+  color: black;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .clues {
   display: flex;
-  gap: 0rem;
+  gap: 1rem;
   color: black;
-  font-family: "Times New Roman", Times, serif;
-  font-size: 1.2rem;
+  font-family: "Times New Roman", serif;
+  font-size: 1.4rem;
   justify-content: flex-start;
   align-items: flex-start;
-  flex: 1 1 40rem;
+  margin-top: -2rem;
 }
 
-.clues .clue-column {
-  text-align: left;
-  list-style-type: none;
-  display: flex;
-  flex-direction: column;
-
-  width: 30rem;
+.puzzles-title {
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-family: "Times New Roman", serif;
+  color: white;
+  font-weight: 100;
+  line-height: 1.2;
+  margin-top: -0.5rem;
 }
 
-.clue-title {
-  font-size: 2.4rem;
-  margin-bottom: 0.5rem;
-  font-family: "Times New Roman", Times, serif;
+.puzzle-name {
+  font-size: clamp(2rem, 4vw, 5rem);
+  font-family: "Times New Roman", serif;
   color: black;
-  font-weight: bolder;
+  font-weight: 100;
+  line-height: 1.2;
+  margin-top: 1.5rem;
 }
 
 .title-container {
   display: flex;
   flex-direction: column;
-  margin-bottom: 0rem;
   position: relative;
+}
+
+.footer {
+  margin-top: 97vh;
+  /* intentional — pins footer near bottom of viewport */
+  font-size: clamp(10px, 1vw, 16px);
+  color: #888;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+/* navbar */
+
+.navbarhome {
+  display: flex;
+  justify-content: center;
+  background: rgb(94, 50, 130);
+  /* rgb(114, 3, 63); */
+  position: fixed;
+  top: 6.8vh;
+  width: 100%;
+  z-index: 10;
+}
+
+.nav-link {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: inherit;
+  padding: 0.5rem 3.5rem;
+  /* uniform spacing on each side */
+  position: relative;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgb(94, 50, 130);
+}
+
+.nav-link-active {
+  color: white;
+}
+
+.nav-link-active::after {
+  background: white;
+}
+
+.nav-link:focus {
+  outline: none;
+}
+
+.nav-link:focus-visible {
+  outline: none;
+}
+
+/* home pages */
+
+.home-message {
+  font-size: clamp(1.25rem, 2vw, 2.5rem);
+  margin-bottom: 0.5rem;
+  font-family: "Times New Roman", serif;
+  color: black;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-top: -6rem;
+}
+
+.home-description {
+  font-size: clamp(1rem, 1.5vw, 1.75rem);
+  color: black;
+  font-family: "Times New Roman", serif;
+  margin: 0 auto;
+  width: 60%;
+  line-height: 1.4;
+  margin-bottom: 2rem;
+}
+
+.qr-code {
+  width: 15vw;
+  height: auto;
+  margin-top: -3rem;
+}
+
+.muse-logo {
+  width: 4.5rem;
+  height: auto;
+  margin-bottom: -0.5rem;
+}
+
+.return-home {
+  position: absolute;
+  top: 0rem;
+  right: 4.5vw;
+  font-size: clamp(1rem, 1.5vw, 2rem);
+  color: black;
+  font-family: "Times New Roman", serif;
+}
+
+.crosswords-container {
+  margin-top: 5vh;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 0 2rem;
+}
+
+.puzzle-card-header {
+  border-bottom: 1px solid #000;
+  padding-bottom: 0.5rem;
+  font-size: clamp(2.25rem, 2.5vw, 3.5rem);
+  color: black;
+  font-family: "Times New Roman", serif;
+  font-weight: 525;
+}
+
+.puzzle-card-header:not(:last-child) {
+  border-right: 1px solid #000;
+}
+
+.crossword-card {
+  padding: 1rem 0;
+  text-decoration: none;
+  color: inherit;
+}
+
+.crossword-card:not(:nth-child(3n)) {
+  border-right: 1px solid #000;
+}
+
+.crossword-name {
+  font-size: clamp(1.25rem, 2vw, 2.5rem);
+  margin-bottom: 0.5rem;
+  font-family: "Times New Roman", serif;
+  color: black;
+  font-weight: 10;
+  line-height: 1.2;
+}
+
+.crosswords-description {
+  font-size: clamp(1rem, 1.5vw, 1.75rem);
+  color: black;
+  font-family: "Times New Roman", serif;
+  margin: 0 auto;
+  width: 80%;
+  line-height: 1.4;
+  margin-top: -8vh;
 }
