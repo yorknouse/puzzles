@@ -3,33 +3,27 @@ import type { CrosswordPuzzle } from "./crossword";
 import { Link } from "react-router-dom";
 
 const bob = "./Crosswords/puzzle1.json";
-
 const puzzles = import.meta.glob("./Crosswords/*.json", { eager: true });
 const puzzle1 = puzzles[bob] as CrosswordPuzzle;
 
 type Props = {
-  puzzle?: CrosswordPuzzle; // pass a puzzle as a prop to be used, otherwise deafulting to puzzle1
+  puzzle?: CrosswordPuzzle;
 };
 
 export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
-  //renders the crossword
-
   const size = puzzle.size;
-
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]); //navigate between cells using arrrow keys
-
-  // Convert flat grid to 2D array for rendering
-
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const answerGrid = puzzle.answerGrid;
 
   const workingGridBuilder: string[] = answerGrid.map((value: string) =>
     value !== "0" ? "1" : "0",
-  ); // build a working grid from the answer grid
+  );
   const sourceGrid = workingGridBuilder;
   const [workingGrid, setWorkingGrid] = useState<string[]>(() =>
     sourceGrid.map((cell) => (cell === "0" ? "0" : "")),
   );
 
+  const direction = useRef<"left" | "up" | "none">("none");
   const rows: string[][] = [];
   const sourceRows: string[][] = [];
 
@@ -44,40 +38,22 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
 
   const isStartOfAcross = (r: number, c: number) => {
     const value = answerGrid[r * size + c];
-    if (value === "0") {
-      //base case
-      return false;
-    }
+    if (value === "0") return false;
     if (value.toUpperCase() === value) {
-      if (
-        c == 0 ||
-        (sourceRows[r][c - 1] === "0" && sourceRows[r][c + 1] !== "0")
-      ) {
-        return true; // check if it's a Capital letter
-      }
+      if (c == 0 || (sourceRows[r][c - 1] === "0" && sourceRows[r][c + 1] !== "0")) return true;
     }
     return false;
   };
 
   const isStartOfDown = (r: number, c: number) => {
     const value = answerGrid[r * size + c];
-    if (value === "0") {
-      //base case
-      return false;
-    }
+    if (value === "0") return false;
     if (value.toUpperCase() === value) {
-      console.log(value);
-      if (
-        r == 0 ||
-        (sourceRows[r - 1][c] === "0" && sourceRows[r + 1][c] !== "0")
-      ) {
-        return true; // check if it's a Capital letter
-      }
+      if (r == 0 || (sourceRows[r - 1][c] === "0" && sourceRows[r + 1][c] !== "0")) return true;
     }
     return false;
   };
 
-  //assigns numbers to correct squares
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
       if (isStartOfAcross(r, c)) {
@@ -90,112 +66,151 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
     }
   }
 
-  //arrrow key moving across grid functionality
-  const handleKeyDown = (
-    r: number,
-    c: number,
-    e: React.KeyboardEvent<HTMLInputElement>,
-    //moving left kind of thing??
-  ) => {
+  //i should make it so it knows if youre on a horizontal or vertical word, so you can move the correct way.
+  const handleKeyDown = (r: number, c: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     let newR = r;
     let newC = c;
 
+    if(e.key.match(/[a-z]/) && e.key.length === 1){
+        setWorkingGrid((workingGrid) => {
+          const newGrid = [...workingGrid];
+          newGrid[r * size + c] = "";
+          return newGrid;
+        });
+    }
     switch (e.key) {
       case "Backspace":
         setWorkingGrid((workingGrid) => {
           const newGrid = [...workingGrid];
-          newGrid[r * size + c] = ""; // remove letter in current cell
+          newGrid[r * size + c] = "";
           return newGrid;
         });
-        if (
-          workingGrid[r * size + c - 1] != "0" &&
-          (workingGrid[r * size + c + 1] == "0" ||
-            workingGrid[r * size + c + 1] == "")
-        ) {
-          newC = Math.max(0, c - 1);
-        } else {
-          if (
-            workingGrid[r * size + c - size] != "0" &&
-            (workingGrid[r * size + c + size] == "0" ||
-              workingGrid[r * size + c + size] == "")
-          ) {
-            newR = Math.max(0, r - 1);
+        if(direction.current == "none" && (workingGrid[r* size + c -1] != "0" || workingGrid[r* size + c -size] != "0")){
+          if(workingGrid[r*size + c - size] == "0" && workingGrid[r*size + c + size] == "0"){
+            direction.current = "left";
+          }
+          else if (workingGrid[r*size + c - 1] == "0" && workingGrid[r*size + c + 1] == "0"){
+            direction.current = "up";
+          }
+          else{
+            direction.current = "left";
+          }
+        }
+
+        if (direction.current === "left"){
+          newC = Math.max(0,c -1);
+          if(workingGrid[r * size + newC] === "0" ){
+            direction.current = "none";
+          }
+        }
+        else if (direction.current =="up"){
+          newR = Math.max(0, r-1);
+          if(workingGrid[newR * size + c] == "0"){
+            direction.current = "none"
           }
         }
         break;
-      case "ArrowUp":
-        newR = Math.max(0, r - 1);
-        break;
-      case "ArrowDown":
-        newR = Math.min(size - 1, r + 1);
-        break;
-      case "ArrowLeft":
-        newC = Math.max(0, c - 1);
-        break;
-      case "ArrowRight":
-        newC = Math.min(size - 1, c + 1);
-        break;
-      default:
-        return; // exit if it's not an arrow key
+      case "ArrowUp": newR = Math.max(0, r - 1); direction.current = "none"; break;
+      case "ArrowDown": newR = Math.min(size - 1, r + 1); direction.current = "none"; break;
+      case "ArrowLeft": newC = Math.max(0, c - 1); direction.current = "none"; break;
+      case "ArrowRight": newC = Math.min(size - 1, c + 1); direction.current = "none"; break;
+      default: return;
     }
 
     const newIndex = newR * size + newC;
-
-    // Skip blocked cells
     if (sourceRows[newR][newC] !== "0") {
       inputRefs.current[newIndex]?.focus();
     }
-
     e.preventDefault();
   };
 
   const handleChange = (r: number, c: number, value: string) => {
-    //update the working grid when a cell value is changed
     const indx = r * size + c;
-    setWorkingGrid((prev) => {
-      const newGrid = [...prev];
-      newGrid[indx] = value; // 0 for empty cells
+    const letter = value.toUpperCase().slice(0, 1); 
+    if (letter.match(/[A-Z]/)) {
+    setWorkingGrid((workingGrid) => {
+      const newGrid = [...workingGrid];
+      newGrid[indx] = letter;
       return newGrid;
     });
+      let nextInput = null;
+
+      if(direction.current == "none" && (workingGrid[r* size + c + 1] != "0" || workingGrid[r* size + c + size] != "0")){
+          if(workingGrid[r*size + c + size] == "0"){
+            direction.current = "left";
+          }
+          else if (workingGrid[r*size + c + 1] == "0"){
+            direction.current = "up";
+          }
+          else{
+            direction.current = "left";
+          }
+        }
+
+        if (direction.current === "left"){
+          nextInput = inputRefs.current[r * size + c + 1];
+        }
+        else if (direction.current =="up"){
+          nextInput = inputRefs.current[r* size + c + size];
+        }
+
+        nextInput?.focus();
+
+        if(nextInput = undefined){
+           direction.current = "none"
+        }
+
+    }
   };
 
-  //compare workingGrid and answerGrid
   const validateGrid = () => {
     if (!puzzle.answerGrid) return false;
     for (let i = 0; i < workingGrid.length; i++) {
-      if (workingGrid[i].toLowerCase() != answerGrid[i].toLowerCase()) {
-        return false;
-      }
+      if (workingGrid[i].toLowerCase() != answerGrid[i].toLowerCase()) return false;
     }
     return true;
   };
 
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-
   const checkAnswer = () => {
-    const result = validateGrid();
+    const result = validateGrid();;
     setIsCorrect(result);
-  };
+
+    // Auto‑reset after 1 second
+    setTimeout(() => {
+      setIsCorrect(null);
+      }, 1000);
+};
+
 
   return (
-    //HTML Section
-
     <div className="outerbackgroundcrossword">
       <div className="innerbackgroundcrossword">
-        <div className="title-container">
+
+        {/* Top bar */}
+        <div className="crossword-topbar">
+          <button
+            className={`crossword-check-btn ${
+              isCorrect === true ? "correct" :
+              isCorrect === false ? "incorrect" :
+              ""
+            }`}
+            onClick={checkAnswer}
+          >
+            Check Answer
+          </button>
+
           <h1 className="crossword-title">CROSSWORD</h1>
-          <div className="controls">
-            <button onClick={checkAnswer}>Check Answer</button>
-            {isCorrect !== null && (
-              <p>{isCorrect ? "Correct!" : "Not quite it!"}</p>
-            )}
-          </div>
-          <Link to="/" className="return-home">
-            <h2 className="return-home">Home</h2>
-          </Link>
+          <Link to="/" className="return-home">Home</Link>
         </div>
-        <div className="crossword">
-          {/* Grid rendering */}
+
+        {/* {isCorrect !== null && (
+          <p className="crossword-result">{isCorrect ? "Correct!" : "Not quite it!"}</p>
+        )} */}
+
+        {/* Main content */}
+        <div className="crossword-layout">
+          {/* Grid */}
           <div className="grid">
             {rows.map((row, r) => (
               <div key={r} className="row">
@@ -204,22 +219,16 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
                   const isBlocked = sourceCell === "0";
                   const clueNum = numberedCells[r * size + c];
                   return (
-                    <div
-                      key={c}
-                      className={`cell ${isBlocked ? "blocked" : ""}`}
-                    >
-                      {clueNum && (
-                        <span className="cell-number">{clueNum}</span>
-                      )}
+                    <div key={c} className={`cell ${isBlocked ? "blocked" : ""}`}>
+                      {clueNum && <span className="cell-number">{clueNum}</span>}
                       {!isBlocked && (
                         <input
-                          ref={(el) => {
-                            inputRefs.current[r * size + c] = el;
-                          }}
+                          ref={(el) => { inputRefs.current[r * size + c] = el; }}
                           maxLength={1}
                           value={typeof cell === "string" ? cell : ""}
                           onChange={(e) => handleChange(r, c, e.target.value)}
                           onKeyDown={(e) => handleKeyDown(r, c, e)}
+                          onClick={() => { direction.current = "none"; }}
                         />
                       )}
                     </div>
@@ -228,31 +237,27 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
               </div>
             ))}
           </div>
+
+          {/* Clues */}
           <div className="clues">
             <div className="clue-column">
               <h2 className="clue-title">ACROSS</h2>
               {puzzle.hints.across.map((h) => (
-                <li key={h.number}>
-                  {h.number} {h.clue}
-                </li>
+                <li key={h.number}>{h.number} {h.clue}</li>
               ))}
             </div>
             <div className="clue-column">
               <h2 className="clue-title">DOWN</h2>
               {puzzle.hints.down.map((h) => (
-                <li key={h.number}>
-                  {h.number} {h.clue}
-                </li>
+                <li key={h.number}>{h.number} {h.clue}</li>
               ))}
             </div>
           </div>
         </div>
+
       </div>
       <p className="footer">
-        Made by{" "}
-        <a href="https://docs.nouse.co.uk/pages/15%20tech-team.html">
-          Nouse Tech
-        </a>
+        Made by <a href="https://docs.nouse.co.uk/pages/15%20tech-team.html">Nouse Tech</a>
       </p>
     </div>
   );

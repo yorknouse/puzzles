@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import WhatsappQR from "../Images/WhatsappQR.png";
 import Muselogo from "../Images/Muselogo.png";
@@ -15,21 +15,69 @@ const pages = [
 
 export default function Home() {
   const [active, setActive] = useState("Home");
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Lock background scroll when drawer is open
+  useEffect(() => {
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
+
+  const handleNav = (page: string) => {
+    setActive(page);
+    setMenuOpen(false);
+    if (page === "Muse Home") {
+      window.location.href = "https://nouse.co.uk/muse";
+    }
+  };
 
   return (
     <div className="outerbackgroundhome">
-      <div className="topbannerhome">
-        <div className="title-container">
-          <h1 className="puzzles-title">Nouse Puzzles</h1>
+
+      {/* Sticky header wrapper */}
+      <div className="sticky-header">
+        <div className="topbannerhome">
+          <button
+            className="burger-btn"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label="Open menu"
+          >
+            <span /><span /><span />
+          </button>
+          <div className="title-container">
+            <h1 className="puzzles-title">Nouse Puzzles</h1>
+          </div>
         </div>
+
+        <nav className="navbarhome">
+          {pages.map((page) => (
+            <button
+              key={page}
+              className={`nav-link ${active === page ? "nav-link-active" : ""}`}
+              onClick={() => handleNav(page)}
+            >
+              {page === "Muse Home" ? (
+                <img src={Muselogo} className="muse-logo" alt="Muse Home" />
+              ) : (
+                page
+              )}
+            </button>
+          ))}
+        </nav>
       </div>
 
-      <nav className="navbarhome">
+      {/* Slide-out drawer — mobile only */}
+      <div className={`mobile-drawer ${menuOpen ? "mobile-drawer-open" : ""}`}>
+        {/* Title stays visible at top of drawer */}
+        <div className="drawer-header">
+          <h1 className="drawer-title">Nouse Puzzles</h1>
+          <button className="drawer-close" onClick={() => setMenuOpen(false)}>✕</button>
+        </div>
         {pages.map((page) => (
           <button
             key={page}
-            className={`nav-link ${active === page ? "nav-link-active" : ""}`}
-            onClick={() => setActive(page)}
+            className={`drawer-link ${active === page ? "drawer-link-active" : ""}`}
+            onClick={() => handleNav(page)}
           >
             {page === "Muse Home" ? (
               <img src={Muselogo} className="muse-logo" alt="Muse Home" />
@@ -38,7 +86,11 @@ export default function Home() {
             )}
           </button>
         ))}
-      </nav>
+      </div>
+
+      {menuOpen && (
+        <div className="drawer-overlay" onClick={() => setMenuOpen(false)} />
+      )}
 
       <div className="puzzles-container">
         {active === "Home" && (
@@ -56,17 +108,16 @@ export default function Home() {
             <br />
             <p className="home-description">
               If you are interested in joining, you can email us at{" "}
-              <a href="mailto: info@nouse.co.uk">info@nouse.co.uk </a>
-              or join our WhatsApp group by scanning the QR code below. We also
-              have meetings every Thursday at 6pm in the SLB. We look forward to
-              hearing from you! <br />
-              <br />
+              <a href="mailto:info@nouse.co.uk">info@nouse.co.uk</a>
+              {" "}or join our <a href = "https://chat.whatsapp.com/CRJfRi94TkKEW70HdakYT7">WhatsApp group </a> 
+               by scanning the QR code below. We also have meetings every Thursday at 6pm in the SLB. 
+              We look forward to hearing from you!
+              <br /><br />
               Sincerely, the Nouse Tech Team.
             </p>
-            <br />
             <img
               src={WhatsappQR}
-              alt="QR code to join Nouse Tech WhatsApp group"
+              alt="QR code to join Nouse Tech WhatsApp group - https://chat.whatsapp.com/CRJfRi94TkKEW70HdakYT7"
               className="qr-code"
             />
           </>
@@ -82,7 +133,6 @@ export default function Home() {
               <div className="puzzle-card-header">Muse edition</div>
               <div className="puzzle-card-header">Tech Team</div>
               <div className="puzzle-card-header">User made</div>
-
               <Link to="/crossword" className="crossword-card">
                 <h2 className="crossword-name">Crossword</h2>
               </Link>
@@ -95,37 +145,27 @@ export default function Home() {
         {active === "Sudoku" && (
           <>
             <h2 className="crossword-name">(This page is under development)</h2>
-            <Link to="/crossword" className="puzzle-card">
-              <h2 className="puzzle-name">Sudoku</h2>
-            </Link>
+            <Link to="/crossword" className="puzzle-card"><h2 className="puzzle-name">Sudoku</h2></Link>
           </>
         )}
         {active === "Wordle" && (
           <>
             <h2 className="crossword-name">(This page is under development)</h2>
-            <Link to="/crossword" className="puzzle-card">
-              <h2 className="puzzle-name">Wordle</h2>
-            </Link>
+            <Link to="/crossword" className="puzzle-card"><h2 className="puzzle-name">Wordle</h2></Link>
           </>
         )}
         {active === "Cat Invasion" && (
           <>
             <h2 className="crossword-name">(This page is under development)</h2>
-            <Link to="/crossword" className="puzzle-card">
-              <h2 className="puzzle-name">Cat Invasion</h2>
-            </Link>
+            <Link to="/crossword" className="puzzle-card"><h2 className="puzzle-name">Cat Invasion</h2></Link>
           </>
         )}
         {active === "Text Adventure" && (
           <>
             <h2 className="crossword-name">(This page is under development)</h2>
-            <Link to="/crossword" className="puzzle-card">
-              <h2 className="puzzle-name">Text Adventure</h2>
-            </Link>
+            <Link to="/crossword" className="puzzle-card"><h2 className="puzzle-name">Text Adventure</h2></Link>
           </>
         )}
-        {active === "Muse Home" &&
-          (window.location.href = "https://nouse.co.uk/muse")}
       </div>
     </div>
   );
