@@ -1,5 +1,6 @@
 /* ─── Backgrounds ─────────────────────────────────────── */
-html, body {
+html,
+body {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
@@ -39,7 +40,10 @@ html, body {
   background: white;
 }
 
-main, .outerbackgroundhome, .home-content, .home-wrapper {
+main,
+.outerbackgroundhome,
+.home-content,
+.home-wrapper {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
@@ -597,14 +601,16 @@ main, .outerbackgroundhome, .home-content, .home-wrapper {
   }
 }
 
- .crossword-check-btn {
+.crossword-check-btn {
   background: black;
   color: white;
   border: none;
   padding: 0.6rem 1.2rem;
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.25s ease, transform 0.15s ease;
+  transition:
+    background 0.25s ease,
+    transform 0.15s ease;
   margin-right: 1vw;
 }
 

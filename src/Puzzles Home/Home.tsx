@@ -20,7 +20,9 @@ export default function Home() {
   // Lock background scroll when drawer is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [menuOpen]);
 
   const handleNav = (page: string) => {
@@ -33,7 +35,6 @@ export default function Home() {
 
   return (
     <div className="outerbackgroundhome">
-
       {/* Sticky header wrapper */}
       <div className="sticky-header">
         <div className="topbannerhome">
@@ -42,7 +43,9 @@ export default function Home() {
             onClick={() => setMenuOpen((o) => !o)}
             aria-label="Open menu"
           >
-            <span /><span /><span />
+            <span />
+            <span />
+            <span />
           </button>
           <div className="title-container">
             <h1 className="puzzles-title">Nouse Puzzles</h1>
@@ -71,7 +74,9 @@ export default function Home() {
         {/* Title stays visible at top of drawer */}
         <div className="drawer-header">
           <h1 className="drawer-title">Nouse Puzzles</h1>
-          <button className="drawer-close" onClick={() => setMenuOpen(false)}>✕</button>
+          <button className="drawer-close" onClick={() => setMenuOpen(false)}>
+            ✕
+          </button>
         </div>
         {pages.map((page) => (
           <button
@@ -108,11 +113,14 @@ export default function Home() {
             <br />
             <p className="home-description">
               If you are interested in joining, you can email us at{" "}
-              <a href="mailto:info@nouse.co.uk">info@nouse.co.uk</a>
-              {" "}or join our <a href = "https://chat.whatsapp.com/CRJfRi94TkKEW70HdakYT7">WhatsApp group </a> 
-               by scanning the QR code below. We also have meetings every Thursday at 6pm in the SLB. 
-              We look forward to hearing from you!
-              <br /><br />
+              <a href="mailto:info@nouse.co.uk">info@nouse.co.uk</a> or join our{" "}
+              <a href="https://chat.whatsapp.com/CRJfRi94TkKEW70HdakYT7">
+                WhatsApp group{" "}
+              </a>
+              by scanning the QR code below. We also have meetings every
+              Thursday at 6pm in the SLB. We look forward to hearing from you!
+              <br />
+              <br />
               Sincerely, the Nouse Tech Team.
             </p>
             <img
@@ -125,8 +133,9 @@ export default function Home() {
         {active === "Crossword" && (
           <>
             <p className="crosswords-description">
-              Welcome to crosswords! Currently, you can play the newest MUSE print crossword,
-              but we are planning to add more in the near future! (This page is under development)
+              Welcome to crosswords! Currently, you can play the newest MUSE
+              print crossword, but we are planning to add more in the near
+              future! (This page is under development)
             </p>
             {/* <div className="crosswords-container">
               <div className="puzzle-card-header">Muse edition</div>
@@ -144,25 +153,33 @@ export default function Home() {
         {active === "Sudoku" && (
           <>
             <h2 className="crossword-name">(This page is under development)</h2>
-            <Link to="/crossword" className="puzzle-card"><h2 className="puzzle-name">Sudoku</h2></Link>
+            <Link to="/crossword" className="puzzle-card">
+              <h2 className="puzzle-name">Sudoku</h2>
+            </Link>
           </>
         )}
         {active === "Wordle" && (
           <>
             <h2 className="crossword-name">(This page is under development)</h2>
-            <Link to="/crossword" className="puzzle-card"><h2 className="puzzle-name">Wordle</h2></Link>
+            <Link to="/crossword" className="puzzle-card">
+              <h2 className="puzzle-name">Wordle</h2>
+            </Link>
           </>
         )}
         {active === "Cat Invasion" && (
           <>
             <h2 className="crossword-name">(This page is under development)</h2>
-            <Link to="/crossword" className="puzzle-card"><h2 className="puzzle-name">Cat Invasion</h2></Link>
+            <Link to="/crossword" className="puzzle-card">
+              <h2 className="puzzle-name">Cat Invasion</h2>
+            </Link>
           </>
         )}
         {active === "Text Adventure" && (
           <>
             <h2 className="crossword-name">(This page is under development)</h2>
-            <Link to="/crossword" className="puzzle-card"><h2 className="puzzle-name">Text Adventure</h2></Link>
+            <Link to="/crossword" className="puzzle-card">
+              <h2 className="puzzle-name">Text Adventure</h2>
+            </Link>
           </>
         )}
       </div>
