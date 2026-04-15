@@ -125,20 +125,19 @@ export default function Home() {
         {active === "Crossword" && (
           <>
             <p className="crosswords-description">
-              Here you can choose to play crosswords by our puzzles editor, the
-              tech team, or user made ones! Or you can make your own! (This page
-              is under development)
+              Welcome to crosswords! Currently, you can play the newest MUSE print crossword,
+              but we are planning to add more in the near future! (This page is under development)
             </p>
-            <div className="crosswords-container">
+            {/* <div className="crosswords-container">
               <div className="puzzle-card-header">Muse edition</div>
               <div className="puzzle-card-header">Tech Team</div>
               <div className="puzzle-card-header">User made</div>
               <Link to="/crossword" className="crossword-card">
                 <h2 className="crossword-name">Crossword</h2>
               </Link>
-            </div>
+            </div> */}
             <Link to="/crossword" className="puzzle-card">
-              <h2 className="puzzle-name">Make your own!</h2>
+              <h2 className="puzzle-name">Play this paper's crossword here!</h2>
             </Link>
           </>
         )}

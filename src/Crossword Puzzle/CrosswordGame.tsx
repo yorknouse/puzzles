@@ -2,15 +2,15 @@ import { useState, useRef } from "react";
 import type { CrosswordPuzzle } from "./crossword";
 import { Link } from "react-router-dom";
 
-const bob = "./Crosswords/puzzle1.json";
+const p2 = "./Crosswords/puzzle2.json";
 const puzzles = import.meta.glob("./Crosswords/*.json", { eager: true });
-const puzzle1 = puzzles[bob] as CrosswordPuzzle;
+const puzzle2 = puzzles[p2] as CrosswordPuzzle;
 
 type Props = {
   puzzle?: CrosswordPuzzle;
 };
 
-export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
+export default function CrosswordGame({ puzzle = puzzle2 }: Props) {
   const size = puzzle.size;
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const answerGrid = puzzle.answerGrid;
@@ -33,40 +33,27 @@ export default function CrosswordGame({ puzzle = puzzle1 }: Props) {
   }
 
   const numberedCells: { [index: number]: number } = {};
-  let nextNumberA = 1;
-  let nextNumberD = 2;
+  let nextNumber = 1;
 
-  const isStartOfAcross = (r: number, c: number) => {
+  const generateCellNumber = (r: number, c: number) => {
     const value = answerGrid[r * size + c];
     if (value === "0") return false;
     if (value.toUpperCase() === value) {
-      if (c == 0 || (sourceRows[r][c - 1] === "0" && sourceRows[r][c + 1] !== "0")) return true;
-    }
-    return false;
-  };
-
-  const isStartOfDown = (r: number, c: number) => {
-    const value = answerGrid[r * size + c];
-    if (value === "0") return false;
-    if (value.toUpperCase() === value) {
-      if (r == 0 || (sourceRows[r - 1][c] === "0" && sourceRows[r + 1][c] !== "0")) return true;
+      return true;
     }
     return false;
   };
 
   for (let r = 0; r < size; r++) {
     for (let c = 0; c < size; c++) {
-      if (isStartOfAcross(r, c)) {
-        numberedCells[r * size + c] = nextNumberA;
-        nextNumberA += 2;
-      } else if (isStartOfDown(r, c)) {
-        numberedCells[r * size + c] = nextNumberD;
-        nextNumberD += 2;
-      }
+      if (generateCellNumber(r, c)) {
+        numberedCells[r * size + c] = nextNumber;
+        nextNumber += 1;
     }
   }
+}
 
-  //i should make it so it knows if youre on a horizontal or vertical word, so you can move the correct way.
+  //i should make it so it knows if youre on a horizontal or vertical word, so you can move the correct way. DONE
   const handleKeyDown = (r: number, c: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     let newR = r;
     let newC = c;
