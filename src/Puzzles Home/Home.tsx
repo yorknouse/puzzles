@@ -117,8 +117,11 @@ export default function Home() {
             </p>
             <br />
             <p className="home-description">
-              If you are interested in joining, you can email us at{" "}
-              <a href="mailto:info@nouse.co.uk">info@nouse.co.uk</a> or join our{" "}
+              If you are interested in joining, you can email me at{" "}
+              <a href="mailto:yakup.ozturk@nouse.co.uk">
+                yakup.ozturk@nouse.co.uk
+              </a>{" "}
+              to find out more, or join our{" "}
               <a href="https://chat.whatsapp.com/CRJfRi94TkKEW70HdakYT7">
                 WhatsApp group{" "}
               </a>
