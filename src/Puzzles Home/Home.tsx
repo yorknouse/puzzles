@@ -10,7 +10,6 @@ const pages = [
   "Wordle",
   "Cat Invasion",
   "Text Adventure",
-  "Muse Home",
 ];
 
 export default function Home() {
@@ -36,7 +35,7 @@ export default function Home() {
   return (
     <div className="outerbackgroundhome">
       {/* Sticky header wrapper */}
-      <div className="sticky-header">
+      <div className="fixed-header">
         <div className="topbannerhome">
           <button
             className="burger-btn"
@@ -59,13 +58,19 @@ export default function Home() {
               className={`nav-link ${active === page ? "nav-link-active" : ""}`}
               onClick={() => handleNav(page)}
             >
-              {page === "Muse Home" ? (
-                <img src={Muselogo} className="muse-logo" alt="Muse Home" />
-              ) : (
-                page
-              )}
+              {page}
             </button>
           ))}
+
+          <a
+            href="https://nouse.co.uk/muse"
+            target="_blank"
+            rel="noreferrer"
+            className="nav-link"
+            style={{ textDecoration: "none" }}
+          >
+            <img src={Muselogo} className="muse-logo" alt="Muse" />
+          </a>
         </nav>
       </div>
 
@@ -153,33 +158,33 @@ export default function Home() {
         {active === "Sudoku" && (
           <>
             <h2 className="crossword-name">(This page is under development)</h2>
-            <Link to="/crossword" className="puzzle-card">
+            {/* <Link to="/crossword" className="puzzle-card">
               <h2 className="puzzle-name">Sudoku</h2>
-            </Link>
+            </Link> */}
           </>
         )}
         {active === "Wordle" && (
           <>
             <h2 className="crossword-name">(This page is under development)</h2>
-            <Link to="/crossword" className="puzzle-card">
+            {/* <Link to="/crossword" className="puzzle-card">
               <h2 className="puzzle-name">Wordle</h2>
-            </Link>
+            </Link> */}
           </>
         )}
         {active === "Cat Invasion" && (
           <>
             <h2 className="crossword-name">(This page is under development)</h2>
-            <Link to="/crossword" className="puzzle-card">
+            {/* <Link to="/crossword" className="puzzle-card">
               <h2 className="puzzle-name">Cat Invasion</h2>
-            </Link>
+            </Link> */}
           </>
         )}
         {active === "Text Adventure" && (
           <>
             <h2 className="crossword-name">(This page is under development)</h2>
-            <Link to="/crossword" className="puzzle-card">
+            {/* <Link to="/crossword" className="puzzle-card">
               <h2 className="puzzle-name">Text Adventure</h2>
-            </Link>
+            </Link> */}
           </>
         )}
       </div>

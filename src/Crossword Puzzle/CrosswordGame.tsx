@@ -69,6 +69,7 @@ export default function CrosswordGame({ puzzle = puzzle2 }: Props) {
         return newGrid;
       });
     }
+
     switch (e.key) {
       case "Backspace":
         setWorkingGrid((workingGrid) => {
@@ -138,6 +139,15 @@ export default function CrosswordGame({ puzzle = puzzle2 }: Props) {
   const handleChange = (r: number, c: number, value: string) => {
     const indx = r * size + c;
     const letter = value.toUpperCase().slice(0, 1);
+
+    if (letter.match(/[A-Z]/) && letter.length === 1) {
+      setWorkingGrid((workingGrid) => {
+        const newGrid = [...workingGrid];
+        newGrid[r * size + c] = "";
+        return newGrid;
+      });
+    }
+
     if (letter.match(/[A-Z]/)) {
       setWorkingGrid((workingGrid) => {
         const newGrid = [...workingGrid];
@@ -151,24 +161,39 @@ export default function CrosswordGame({ puzzle = puzzle2 }: Props) {
         (workingGrid[r * size + c + 1] != "0" ||
           workingGrid[r * size + c + size] != "0")
       ) {
-        if (workingGrid[r * size + c + size] == "0") {
-          direction.current = "left";
-        } else if (workingGrid[r * size + c + 1] == "0") {
-          direction.current = "up";
+        if (c != size - 1) {
+          if (
+            workingGrid[r * size + c + 1] == "" &&
+            workingGrid[r * size + c + size] != ""
+          ) {
+            direction.current = "left";
+          } else if (
+            workingGrid[r * size + c + 1] != "" &&
+            workingGrid[r * size + c + size] == ""
+          ) {
+            direction.current = "up";
+          } else if (workingGrid[r * size + c + size] == "0") {
+            direction.current = "left";
+          } else if (workingGrid[r * size + c + 1] == "0") {
+            direction.current = "up";
+          } else {
+            direction.current = "left";
+          }
         } else {
-          direction.current = "left";
+          direction.current = "up";
         }
       }
 
-      if (direction.current === "left") {
+      if (direction.current === "left" && c != size - 1) {
         nextInput = inputRefs.current[r * size + c + 1];
       } else if (direction.current == "up") {
         nextInput = inputRefs.current[r * size + c + size];
       }
 
+      console.log(c);
       nextInput?.focus();
 
-      if ((nextInput = undefined)) {
+      if ((nextInput = undefined) || c == size - 1) {
         direction.current = "none";
       }
     }
