@@ -89,13 +89,18 @@ export default function Home() {
             className={`drawer-link ${active === page ? "drawer-link-active" : ""}`}
             onClick={() => handleNav(page)}
           >
-            {page === "Muse Home" ? (
-              <img src={Muselogo} className="muse-logo" alt="Muse Home" />
-            ) : (
-              page
-            )}
+            {page}
           </button>
         ))}
+
+        <a
+          href="https://nouse.co.uk/muse"
+          target="_blank"
+          rel="noreferrer"
+          className="drawer-link"
+        >
+          <img src={Muselogo} className="muse-logo" alt="Muse" />
+        </a>
       </div>
 
       {menuOpen && (
