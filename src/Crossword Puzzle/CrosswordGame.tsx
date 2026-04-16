@@ -69,7 +69,6 @@ export default function CrosswordGame({ puzzle = puzzle2 }: Props) {
         return newGrid;
       });
     }
-
     switch (e.key) {
       case "Backspace":
         setWorkingGrid((workingGrid) => {
@@ -139,15 +138,6 @@ export default function CrosswordGame({ puzzle = puzzle2 }: Props) {
   const handleChange = (r: number, c: number, value: string) => {
     const indx = r * size + c;
     const letter = value.toUpperCase().slice(0, 1);
-
-    if (letter.match(/[A-Z]/) && letter.length === 1) {
-      setWorkingGrid((workingGrid) => {
-        const newGrid = [...workingGrid];
-        newGrid[r * size + c] = "";
-        return newGrid;
-      });
-    }
-
     if (letter.match(/[A-Z]/)) {
       setWorkingGrid((workingGrid) => {
         const newGrid = [...workingGrid];
