@@ -576,8 +576,8 @@ main,
   }
 
   .cell {
-    width: clamp(20px, 6.5vw, 45px);
-    height: clamp(20px, 7.5vw, 45px);
+    width: clamp(15px, 6.5vw, 45px);
+    height: clamp(15px, 6.5vw, 45px);
   }
 
   .cell input {
