@@ -577,12 +577,12 @@ main,
   }
 
   .cell {
-    width: clamp(15px, 6.5vw, 45px);
-    height: clamp(15px, 6.5vw, 45px);
+    width: clamp(15px, 6vw, 45px);
+    height: clamp(15px, 6vw, 45px);
   }
 
   .cell input {
-    font-size: clamp(11px, 5vw, 20px);
+    font-size: clamp(6px, 3.5vw, 20px);
   }
 
   .cell-number {
