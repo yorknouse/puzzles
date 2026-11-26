@@ -113,12 +113,12 @@ export default function Home() {
             <h2 className="home-message">Welcome to Nouse Puzzles!</h2>
             <br />
             <p className="home-description">
-              Currently, we have just the Crossword puzzle available, and we are
-              still adding new features. We are planning to build more
-              puzzles/games in the future, as you can see in the navbar. If you
-              have any interest in building web games, we at the Nouse Tech Team
-              are always looking for new team members, so please get in touch!
-              You could build the above games, or make your own!
+              Currently, we have the Crossword and daily Wordle puzzles
+              available, and we are still adding new features. We are planning
+              to build more puzzles/games in the future, as you can see in the
+              navbar. If you have any interest in building web games, we at the
+              Nouse Tech Team are always looking for new team members, so please
+              get in touch! You could build the above games, or make your own!
             </p>
             <br />
             <p className="home-description">
@@ -173,10 +173,14 @@ export default function Home() {
         )}
         {active === "Wordle" && (
           <>
-            <h2 className="crossword-name">(This page is under development)</h2>
-            {/* <Link to="/crossword" className="puzzle-card">
-              <h2 className="puzzle-name">Wordle</h2>
-            </Link> */}
+            <p className="crosswords-description">
+              Welcome to Nouse Wordle! Guess the five-letter word in six tries.
+              A new puzzle unlocks every day at midnight GMT for everyone
+              worldwide.
+            </p>
+            <Link to="/wordle" className="puzzle-card">
+              <h2 className="puzzle-name">Play today's Wordle here!</h2>
+            </Link>
           </>
         )}
         {active === "Cat Invasion" && (

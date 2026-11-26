@@ -645,3 +645,71 @@ main,
   background: #e74c3c;
   transform: scale(1.05);
 }
+
+/* ─── Wordle Page Shell ───────────────────────────────── */
+
+.wordle-page {
+  min-height: 100dvh;
+  width: 100%;
+  background: #f8f7fb;
+  display: flex;
+  flex-direction: column;
+}
+
+.wordle-page-topbar {
+  width: 100%;
+  background: rgb(94, 50, 130);
+  color: #ffffff;
+  padding: 0.7rem 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.wordle-page-topbar-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wordle-page-badge {
+  justify-self: start;
+  font-family: "Times New Roman", serif;
+  font-size: clamp(0.9rem, 2.2vw, 1.2rem);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.wordle-page-heading {
+  margin: 0;
+  font-family: "Times New Roman", serif;
+  font-size: clamp(1.35rem, 3.2vw, 2.1rem);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+}
+
+.wordle-return-home {
+  justify-self: end;
+  font-family: "Times New Roman", serif;
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  color: #ffffff;
+  text-decoration: none;
+  padding: 0.2rem 0.5rem;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.15s ease;
+}
+
+.wordle-return-home:hover {
+  color: #ffffff;
+  border-bottom-color: #ffffff;
+}
+
+.wordle-page-main {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(0.75rem, 2.5vw, 1.75rem) 0.5rem 0;
+}
