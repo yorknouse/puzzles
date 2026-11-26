@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import WhatsappQR from "../Images/WhatsappQR.png";
 import Muselogo from "../Images/Muselogo.png";
+import NousePuzzlesLogo from "../../Logos/Nouse puzzles Logo.svg";
+import NouseCrosswordLogo from "../../Logos/Nouse Crossword Logo.svg";
+import NouseWordleLogo from "../../Logos/Nouse Wordle Logo.svg";
 
 const pages = [
   "Home",
@@ -47,7 +50,18 @@ export default function Home() {
             <span />
           </button>
           <div className="title-container">
-            <h1 className="puzzles-title">Nouse Puzzles</h1>
+            <button
+              type="button"
+              className="home-logo-btn"
+              onClick={() => handleNav("Home")}
+              aria-label="Nouse Puzzles Home"
+            >
+              <img
+                src={NousePuzzlesLogo}
+                alt="Nouse Puzzles"
+                className="home-masthead-logo"
+              />
+            </button>
           </div>
         </div>
 
@@ -78,7 +92,11 @@ export default function Home() {
       <div className={`mobile-drawer ${menuOpen ? "mobile-drawer-open" : ""}`}>
         {/* Title stays visible at top of drawer */}
         <div className="drawer-header">
-          <h1 className="drawer-title">Nouse Puzzles</h1>
+          <img
+            src={NousePuzzlesLogo}
+            alt="Nouse Puzzles"
+            className="drawer-logo"
+          />
           <button className="drawer-close" onClick={() => setMenuOpen(false)}>
             ✕
           </button>
@@ -113,12 +131,12 @@ export default function Home() {
             <h2 className="home-message">Welcome to Nouse Puzzles!</h2>
             <br />
             <p className="home-description">
-              Currently, we have just the Crossword puzzle available, and we are
-              still adding new features. We are planning to build more
-              puzzles/games in the future, as you can see in the navbar. If you
-              have any interest in building web games, we at the Nouse Tech Team
-              are always looking for new team members, so please get in touch!
-              You could build the above games, or make your own!
+              Currently, we have the Crossword and daily Wordle puzzles
+              available, and we are still adding new features. We are planning
+              to build more puzzles/games in the future, as you can see in the
+              navbar. If you have any interest in building web games, we at the
+              Nouse Tech Team are always looking for new team members, so please
+              get in touch! You could build the above games, or make your own!
             </p>
             <br />
             <p className="home-description">
@@ -158,7 +176,12 @@ export default function Home() {
                 <h2 className="crossword-name">Crossword</h2>
               </Link>
             </div> */}
-            <Link to="/crossword" className="puzzle-card">
+            <Link to="/crossword" className="puzzle-card puzzle-logo-card">
+              <img
+                src={NouseCrosswordLogo}
+                alt="Nouse Crossword"
+                className="home-game-logo"
+              />
               <h2 className="puzzle-name">Play this paper's crossword here!</h2>
             </Link>
           </>
@@ -173,10 +196,19 @@ export default function Home() {
         )}
         {active === "Wordle" && (
           <>
-            <h2 className="crossword-name">(This page is under development)</h2>
-            {/* <Link to="/crossword" className="puzzle-card">
-              <h2 className="puzzle-name">Wordle</h2>
-            </Link> */}
+            <p className="crosswords-description">
+              Welcome to Nouse Wordle! Guess the five-letter word in six tries.
+              A new puzzle unlocks every day at midnight GMT for everyone
+              worldwide.
+            </p>
+            <Link to="/wordle" className="puzzle-card puzzle-logo-card">
+              <img
+                src={NouseWordleLogo}
+                alt="Nouse Wordle"
+                className="home-game-logo"
+              />
+              <h2 className="puzzle-name">Play today's Wordle here!</h2>
+            </Link>
           </>
         )}
         {active === "Cat Invasion" && (
