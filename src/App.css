@@ -54,12 +54,51 @@ main,
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
-  background: rgb(94, 50, 130);
+  background: #ffffff;
+  border-bottom: 2px solid rgb(94, 50, 130);
   display: flex;
   align-items: center;
   justify-content: center;
-  /* padding: 0.6rem 1rem; */
-  /* position: fixed; */
+  padding: 0.45rem 1rem;
+  position: relative;
+}
+
+.home-logo-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-logo-btn:hover {
+  border-color: transparent;
+}
+
+.home-logo-btn:focus,
+.home-logo-btn:focus-visible {
+  outline: 2px solid rgb(94, 50, 130);
+  outline-offset: 2px;
+}
+
+.home-masthead-logo {
+  height: clamp(2.35rem, 5vw, 3.85rem);
+  width: auto;
+  max-width: calc(100vw - 5.5rem);
+  display: block;
+}
+
+.drawer-logo {
+  height: 2.3rem;
+  width: auto;
+  max-width: calc(100vw - 5.5rem);
+  background: #ffffff;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+  display: block;
 }
 
 /* ─── Layout ──────────────────────────────────────────── */
@@ -96,7 +135,12 @@ main,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 0.5rem;
+  gap: 0.5rem;
+  background: #ffffff;
+  border-bottom: 3px solid #d6c18a;
+  margin: 0 -1rem 1rem;
+  padding: 0.65rem 1.25rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
   flex-shrink: 0;
 }
 
@@ -417,8 +461,8 @@ main,
 .burger-btn span {
   display: block;
   width: 100%;
-  height: 2px;
-  background: white;
+  height: 2.5px;
+  background: #111111;
   border-radius: 2px;
 }
 
@@ -617,7 +661,8 @@ main,
   }
 
   .crossword-topbar {
-    padding: 0.5rem 0.25rem;
+    margin: 0 -0.5rem 0.75rem;
+    padding: 0.5rem 0.6rem;
   }
 }
 
@@ -646,7 +691,46 @@ main,
   transform: scale(1.05);
 }
 
-/* ─── Wordle Page Shell ───────────────────────────────── */
+/* ─── Game Logos & Wordle Page Shell ──────────────────── */
+
+.puzzle-logo-heading {
+  margin: 0;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.puzzle-logo-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  margin-top: 0.75rem;
+}
+
+.home-game-logo {
+  height: clamp(3rem, 7vw, 5.25rem);
+  width: auto;
+  max-width: min(90vw, 440px);
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.puzzle-logo-card:hover .home-game-logo {
+  transform: scale(1.03);
+}
+
+.puzzle-logo-card .puzzle-name {
+  margin-top: 0.85rem;
+}
+
+.crossword-header-logo {
+  height: clamp(2.1rem, 4.6vw, 3.4rem);
+  width: auto;
+  max-width: 52vw;
+  display: block;
+}
 
 .wordle-page {
   min-height: 100dvh;
@@ -658,10 +742,10 @@ main,
 
 .wordle-page-topbar {
   width: 100%;
-  background: rgb(94, 50, 130);
-  color: #ffffff;
-  padding: 0.7rem 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  background: #ffffff;
+  border-bottom: 3px solid rgb(94, 50, 130);
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .wordle-page-topbar-inner {
@@ -673,36 +757,36 @@ main,
   gap: 0.5rem;
 }
 
-.wordle-page-badge {
+.wordle-topbar-spacer {
   justify-self: start;
-  font-family: "Times New Roman", serif;
-  font-size: clamp(0.9rem, 2.2vw, 1.2rem);
-  color: rgba(255, 255, 255, 0.9);
 }
 
-.wordle-page-heading {
-  margin: 0;
-  font-family: "Times New Roman", serif;
-  font-size: clamp(1.35rem, 3.2vw, 2.1rem);
-  font-weight: 400;
-  letter-spacing: 0.08em;
-  color: #ffffff;
+.wordle-header-logo {
+  height: clamp(2.35rem, 5vw, 3.85rem);
+  width: auto;
+  max-width: 65vw;
+  display: block;
 }
 
 .wordle-return-home {
   justify-self: end;
   font-family: "Times New Roman", serif;
-  font-size: clamp(1rem, 2.5vw, 1.35rem);
-  color: #ffffff;
+  font-size: clamp(1rem, 2.5vw, 1.45rem);
+  color: rgb(94, 50, 130);
+  font-weight: 700;
   text-decoration: none;
-  padding: 0.2rem 0.5rem;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.15s ease;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  border: 1.5px solid transparent;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .wordle-return-home:hover {
-  color: #ffffff;
-  border-bottom-color: #ffffff;
+  color: rgb(94, 50, 130);
+  background: #f4effa;
+  border-color: rgb(94, 50, 130);
 }
 
 .wordle-page-main {

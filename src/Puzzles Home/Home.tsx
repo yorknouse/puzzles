@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import WhatsappQR from "../Images/WhatsappQR.png";
 import Muselogo from "../Images/Muselogo.png";
+import NousePuzzlesLogo from "../../Logos/Nouse puzzles Logo.svg";
+import NouseCrosswordLogo from "../../Logos/Nouse Crossword Logo.svg";
+import NouseWordleLogo from "../../Logos/Nouse Wordle Logo.svg";
 
 const pages = [
   "Home",
@@ -47,7 +50,18 @@ export default function Home() {
             <span />
           </button>
           <div className="title-container">
-            <h1 className="puzzles-title">Nouse Puzzles</h1>
+            <button
+              type="button"
+              className="home-logo-btn"
+              onClick={() => handleNav("Home")}
+              aria-label="Nouse Puzzles Home"
+            >
+              <img
+                src={NousePuzzlesLogo}
+                alt="Nouse Puzzles"
+                className="home-masthead-logo"
+              />
+            </button>
           </div>
         </div>
 
@@ -78,7 +92,11 @@ export default function Home() {
       <div className={`mobile-drawer ${menuOpen ? "mobile-drawer-open" : ""}`}>
         {/* Title stays visible at top of drawer */}
         <div className="drawer-header">
-          <h1 className="drawer-title">Nouse Puzzles</h1>
+          <img
+            src={NousePuzzlesLogo}
+            alt="Nouse Puzzles"
+            className="drawer-logo"
+          />
           <button className="drawer-close" onClick={() => setMenuOpen(false)}>
             ✕
           </button>
@@ -158,7 +176,12 @@ export default function Home() {
                 <h2 className="crossword-name">Crossword</h2>
               </Link>
             </div> */}
-            <Link to="/crossword" className="puzzle-card">
+            <Link to="/crossword" className="puzzle-card puzzle-logo-card">
+              <img
+                src={NouseCrosswordLogo}
+                alt="Nouse Crossword"
+                className="home-game-logo"
+              />
               <h2 className="puzzle-name">Play this paper's crossword here!</h2>
             </Link>
           </>
@@ -178,7 +201,12 @@ export default function Home() {
               A new puzzle unlocks every day at midnight GMT for everyone
               worldwide.
             </p>
-            <Link to="/wordle" className="puzzle-card">
+            <Link to="/wordle" className="puzzle-card puzzle-logo-card">
+              <img
+                src={NouseWordleLogo}
+                alt="Nouse Wordle"
+                className="home-game-logo"
+              />
               <h2 className="puzzle-name">Play today's Wordle here!</h2>
             </Link>
           </>

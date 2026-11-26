@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import type { CrosswordPuzzle } from "./crossword";
 import { Link } from "react-router-dom";
+import NouseCrosswordLogo from "../../Logos/Nouse Crossword Logo.svg";
 
 const p2 = "./Crosswords/puzzle2.json";
 const puzzles = import.meta.glob("./Crosswords/*.json", { eager: true });
@@ -227,7 +228,13 @@ export default function CrosswordGame({ puzzle = puzzle2 }: Props) {
             Check Answer
           </button>
 
-          <h1 className="crossword-title">CROSSWORD</h1>
+          <h1 className="puzzle-logo-heading">
+            <img
+              src={NouseCrosswordLogo}
+              alt="Nouse Crossword"
+              className="crossword-header-logo"
+            />
+          </h1>
           <Link to="/" className="return-home">
             Home
           </Link>
