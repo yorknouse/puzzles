@@ -10,11 +10,12 @@ export const EPOCH_ISO = "2026-11-26T00:00:00Z";
 export const EPOCH_UTC_MS = Date.UTC(2026, 10, 26, 0, 0, 0);
 const MS_PER_UTC_DAY = 86_400_000;
 
-/** Fixed deterministic base seed ("NOUS" in ASCII hex) */
-const BASE_SHUFFLE_SEED = 0x4e4f5553;
+/** Fixed deterministic base seed */
+const BASE_SHUFFLE_SEED = 0x1185;
 const OBFUSCATION_KEY = 0x5a;
 
-const BOARD_STORAGE_KEY = "nouse_wordle_board_v1";
+const LEGACY_BOARD_STORAGE_KEY = "nouse_wordle_board_v1";
+const BOARD_STORAGE_KEY = "nouse_wordle_board_v2";
 const STATS_STORAGE_KEY = "nouse_wordle_stats_v1";
 const DEFINITION_CACHE_PREFIX = "def_";
 const DICTIONARY_API_BASE = "https://api.dictionaryapi.dev/api/v2/entries/en/";
@@ -32,12 +33,15 @@ export interface DailyPuzzleInfo {
   totalWords: number;
   /** True when the schedule has completed at least one full pass */
   hasCompletedFirstCycle: boolean;
+  /** Opaque deterministic fingerprint of day + word list + target word */
+  puzzleSignature: string;
   /** Retrieve today's uppercase target word on demand (kept encoded at rest) */
   getTargetWord: () => string;
 }
 
 export interface StoredBoardState {
   daysSinceEpoch: number;
+  puzzleSignature: string;
   guesses: string[];
   status: GameStatus;
 }
@@ -49,13 +53,42 @@ export interface PlayerStats {
   maxStreak: number;
   guessDistribution: [number, number, number, number, number, number];
   lastCompletedDay: number | null;
+  lastCompletedSignature?: string | null;
 }
 
-export type RawWordsSource = string[] | { words: string[] };
+export type RawWordsSource =
+  | string[]
+  | {
+      words: string[];
+      allowedGuesses?: string[];
+    };
+
+export interface ParsedDictionary {
+  /** Curated 5-letter common English target words used for daily answers */
+  targetWords: string[];
+  /** Complete set of all valid 5-letter guessable words (targets + extra guesses) */
+  validWordSet: ReadonlySet<string>;
+}
+
+function cleanFiveLetterWords(items: readonly unknown[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+
+  for (const entry of items) {
+    if (typeof entry !== "string") continue;
+    const cleaned = entry.trim().toUpperCase();
+    if (/^[A-Z]{5}$/.test(cleaned) && !seen.has(cleaned)) {
+      seen.add(cleaned);
+      out.push(cleaned);
+    }
+  }
+
+  return out;
+}
 
 /**
  * Normalizes a `words.json` payload (supports both `["apple", ...]` and `{ "words": ["apple", ...] }`)
- * into a deduplicated uppercase array of valid 5-letter A–Z words while preserving input order.
+ * into a deduplicated uppercase array of valid 5-letter A–Z target words while preserving input order.
  */
 export function normalizeWordList(raw: RawWordsSource): string[] {
   const list = Array.isArray(raw) ? raw : raw?.words;
@@ -63,19 +96,43 @@ export function normalizeWordList(raw: RawWordsSource): string[] {
     return [];
   }
 
-  const seen = new Set<string>();
-  const normalized: string[] = [];
-
-  for (const entry of list) {
-    if (typeof entry !== "string") continue;
-    const cleaned = entry.trim().toUpperCase();
-    if (/^[A-Z]{5}$/.test(cleaned) && !seen.has(cleaned)) {
-      seen.add(cleaned);
-      normalized.push(cleaned);
-    }
+  const normalized = cleanFiveLetterWords(list);
+  // If a flat uncurated array is supplied without `allowedGuesses`, exclude vowelless acronyms from answers
+  if (Array.isArray(raw)) {
+    const withVowels = normalized.filter((w) => /[AEIOUY]/.test(w));
+    return withVowels.length > 0 ? withVowels : normalized;
   }
 
   return normalized;
+}
+
+/**
+ * Parses `words.json` into separate `targetWords` (curated common English daily answers)
+ * and `validWordSet` (all 9,079+ allowed 5-letter guesses).
+ */
+export function parseDictionarySource(raw: RawWordsSource): ParsedDictionary {
+  if (Array.isArray(raw)) {
+    const allClean = cleanFiveLetterWords(raw);
+    const withVowels = allClean.filter((w) => /[AEIOUY]/.test(w));
+    return {
+      targetWords: withVowels.length > 0 ? withVowels : allClean,
+      validWordSet: new Set(allClean),
+    };
+  }
+
+  const targetWords = Array.isArray(raw?.words)
+    ? cleanFiveLetterWords(raw.words)
+    : [];
+  const extraGuesses = Array.isArray(raw?.allowedGuesses)
+    ? cleanFiveLetterWords(raw.allowedGuesses)
+    : [];
+
+  const validWordSet = new Set<string>(targetWords);
+  for (const guess of extraGuesses) {
+    validWordSet.add(guess);
+  }
+
+  return { targetWords, validWordSet };
 }
 
 /**
@@ -175,11 +232,35 @@ export function formatCountdownHms(msRemaining: number): string {
 
 const cycleCache = new Map<string, string[]>();
 
+/**
+ * Fast 32-bit FNV-1a hash formatted as 8-character hex.
+ * Used to fingerprint `words.json` and daily puzzles without exposing target words in storage.
+ */
+function fnv1aHex(input: string): string {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(16).padStart(8, "0");
+}
+
+const wordListHashCache = new WeakMap<readonly string[], string>();
+
+function getWordListSignature(words: readonly string[]): string {
+  const cached = wordListHashCache.get(words);
+  if (cached) return cached;
+  const sig = fnv1aHex(words.join(","));
+  wordListHashCache.set(words, sig);
+  return sig;
+}
+
 function getShuffledCycleWords(
   words: readonly string[],
   cycleIndex: number,
 ): string[] {
-  const cacheKey = `${words.length}:${cycleIndex}`;
+  const listSig = getWordListSignature(words);
+  const cacheKey = `${listSig}:${cycleIndex}`;
   const cached = cycleCache.get(cacheKey);
   if (cached) return cached;
 
@@ -221,8 +302,13 @@ export function getDailyPuzzle(
   const cycleIndex = Math.floor(safeDay / totalWords);
   const indexInCycle = safeDay % totalWords;
 
+  const listSig = getWordListSignature(words);
   const cycleWords = getShuffledCycleWords(words, cycleIndex);
-  const encodedTarget = encodeWord(cycleWords[indexInCycle]);
+  const targetWord = cycleWords[indexInCycle];
+  const encodedTarget = encodeWord(targetWord);
+  const puzzleSignature = fnv1aHex(
+    `v2:${safeDay}:${totalWords}:${listSig}:${targetWord}`,
+  );
 
   return {
     daysSinceEpoch: safeDay,
@@ -231,6 +317,7 @@ export function getDailyPuzzle(
     indexInCycle,
     totalWords,
     hasCompletedFirstCycle: cycleIndex > 0,
+    puzzleSignature,
     getTargetWord: () => decodeWord(encodedTarget),
   };
 }
@@ -346,6 +433,10 @@ export function loadPlayerStats(): PlayerStats {
         typeof parsed.lastCompletedDay === "number"
           ? parsed.lastCompletedDay
           : null,
+      lastCompletedSignature:
+        typeof parsed.lastCompletedSignature === "string"
+          ? parsed.lastCompletedSignature
+          : null,
     };
   } catch {
     return createDefaultStats();
@@ -363,11 +454,15 @@ export function savePlayerStats(stats: PlayerStats): void {
 export function recordCompletedGame(
   prevStats: PlayerStats,
   daysSinceEpoch: number,
+  puzzleSignature: string,
   won: boolean,
   guessCount: number,
 ): PlayerStats {
-  // Anti-duplicate guard: never record stats twice for the same UTC day
-  if (prevStats.lastCompletedDay === daysSinceEpoch) {
+  // Anti-duplicate guard: never record stats twice for the exact same daily puzzle
+  if (
+    prevStats.lastCompletedDay === daysSinceEpoch &&
+    prevStats.lastCompletedSignature === puzzleSignature
+  ) {
     return prevStats;
   }
 
@@ -398,6 +493,7 @@ export function recordCompletedGame(
     maxStreak,
     guessDistribution,
     lastCompletedDay: daysSinceEpoch,
+    lastCompletedSignature: puzzleSignature,
   };
 
   savePlayerStats(updated);
@@ -405,29 +501,39 @@ export function recordCompletedGame(
 }
 
 /**
- * Loads and re-validates saved progress for `expectedDaysSinceEpoch`.
- * If the GMT day has rolled over, returns a clean board for the new puzzle.
+ * Loads and re-validates saved progress for `expectedDaysSinceEpoch` + `expectedSignature`.
+ * Automatically resets to a clean board if the GMT day rolled over OR if `words.json` changed.
  */
 export function loadBoardStateForDay(
   expectedDaysSinceEpoch: number,
+  expectedSignature: string,
   targetWord: string,
   validWordSet: ReadonlySet<string>,
 ): StoredBoardState {
   const emptyState: StoredBoardState = {
     daysSinceEpoch: expectedDaysSinceEpoch,
+    puzzleSignature: expectedSignature,
     guesses: [],
     status: "playing",
   };
 
   try {
+    // Clean up legacy v1 storage key so stale pre-signature test sessions reset cleanly
+    window.localStorage.removeItem(LEGACY_BOARD_STORAGE_KEY);
+
     const raw = window.localStorage.getItem(BOARD_STORAGE_KEY);
     if (!raw) return emptyState;
 
     const parsed = JSON.parse(raw) as Partial<StoredBoardState>;
     if (
       parsed.daysSinceEpoch !== expectedDaysSinceEpoch ||
+      parsed.puzzleSignature !== expectedSignature ||
       !Array.isArray(parsed.guesses)
     ) {
+      window.localStorage.setItem(
+        BOARD_STORAGE_KEY,
+        JSON.stringify(emptyState),
+      );
       return emptyState;
     }
 
@@ -452,6 +558,7 @@ export function loadBoardStateForDay(
 
     return {
       daysSinceEpoch: expectedDaysSinceEpoch,
+      puzzleSignature: expectedSignature,
       guesses: validGuesses,
       status: derivedStatus,
     };

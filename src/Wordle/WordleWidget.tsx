@@ -4,7 +4,7 @@ import defaultWordsJson from "./words.json";
 import {
   WORD_LENGTH,
   MAX_GUESSES,
-  normalizeWordList,
+  parseDictionarySource,
   getUtcDaysSinceEpoch,
   getMsUntilNextUtcMidnight,
   formatCountdownHms,
@@ -20,6 +20,7 @@ import {
   fetchWordDefinition,
 } from "./wordleEngine";
 import type {
+  DailyPuzzleInfo,
   GameStatus,
   PlayerStats,
   RawWordsSource,
@@ -73,49 +74,35 @@ export default function WordleWidget({
 }: WordleWidgetProps) {
   const [fetchedWords, setFetchedWords] = useState<RawWordsSource | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-
-  const wordList = useMemo(() => {
-    const raw =
-      fetchedWords ?? wordsData ?? (defaultWordsJson as RawWordsSource);
-    return normalizeWordList(raw);
-  }, [fetchedWords, wordsData]);
-
-  const validWordSet = useMemo(() => new Set(wordList), [wordList]);
-
   const [daysSinceEpoch, setDaysSinceEpoch] = useState<number>(() =>
     getUtcDaysSinceEpoch(),
   );
-
-  const puzzle = useMemo(
-    () => getDailyPuzzle(wordList, daysSinceEpoch),
-    [wordList, daysSinceEpoch],
+  const [countdown, setCountdown] = useState<string>(() =>
+    formatCountdownHms(getMsUntilNextUtcMidnight()),
   );
 
-  const initialBoard = useMemo(
-    () =>
-      loadBoardStateForDay(
-        puzzle.daysSinceEpoch,
-        puzzle.getTargetWord(),
-        validWordSet,
-      ),
-    [puzzle, validWordSet],
-  );
+  const currentDayRef = useRef<number>(daysSinceEpoch);
 
-  const [guesses, setGuesses] = useState<string[]>(() => initialBoard.guesses);
-  const [status, setStatus] = useState<GameStatus>(() => initialBoard.status);
-  const [currentInput, setCurrentInput] = useState<string>("");
-  const [stats, setStats] = useState<PlayerStats>(() => {
-    const loaded = loadPlayerStats();
-    if (initialBoard.status !== "playing") {
-      return recordCompletedGame(
-        loaded,
-        initialBoard.daysSinceEpoch,
-        initialBoard.status === "won",
-        initialBoard.guesses.length,
-      );
-    }
-    return loaded;
-  });
+  useEffect(() => {
+    currentDayRef.current = daysSinceEpoch;
+  }, [daysSinceEpoch]);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      const now = new Date();
+      setCountdown(formatCountdownHms(getMsUntilNextUtcMidnight(now)));
+
+      const latestUtcDay = getUtcDaysSinceEpoch(now);
+      if (latestUtcDay !== currentDayRef.current) {
+        currentDayRef.current = latestUtcDay;
+        setDaysSinceEpoch(latestUtcDay);
+      }
+    }, 1000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, []);
 
   useEffect(() => {
     if (!wordsUrl) return;
@@ -128,21 +115,10 @@ export default function WordleWidget({
       })
       .then((json) => {
         if (!cancelled) {
-          const normalized = normalizeWordList(json);
-          if (normalized.length > 0) {
-            const nextValidSet = new Set(normalized);
-            const currentDay = getUtcDaysSinceEpoch();
-            const nextPuzzle = getDailyPuzzle(normalized, currentDay);
-            const restored = loadBoardStateForDay(
-              nextPuzzle.daysSinceEpoch,
-              nextPuzzle.getTargetWord(),
-              nextValidSet,
-            );
+          const parsed = parseDictionarySource(json);
+          if (parsed.targetWords.length > 0) {
             setFetchedWords(json);
-            setDaysSinceEpoch(currentDay);
-            setGuesses(restored.guesses);
-            setStatus(restored.status);
-            setCurrentInput("");
+            setDaysSinceEpoch(getUtcDaysSinceEpoch());
             setLoadError(null);
           } else {
             setLoadError("Word list was empty. Using bundled dictionary.");
@@ -160,19 +136,86 @@ export default function WordleWidget({
     };
   }, [wordsUrl]);
 
+  const { targetWords, validWordSet } = useMemo(() => {
+    const raw =
+      fetchedWords ?? wordsData ?? (defaultWordsJson as RawWordsSource);
+    return parseDictionarySource(raw);
+  }, [fetchedWords, wordsData]);
+
+  const puzzle = useMemo(
+    () => getDailyPuzzle(targetWords, daysSinceEpoch),
+    [targetWords, daysSinceEpoch],
+  );
+
+  // Keying by `puzzle.puzzleSignature` guarantees an instant clean board reset
+  // both at 00:00 GMT rollover AND whenever `words.json` is swapped or updated.
+  return (
+    <WordleBoardSession
+      key={puzzle.puzzleSignature}
+      puzzle={puzzle}
+      validWordSet={validWordSet}
+      countdown={countdown}
+      loadError={loadError}
+      shareUrl={shareUrl}
+      title={title}
+    />
+  );
+}
+
+interface WordleBoardSessionProps {
+  puzzle: DailyPuzzleInfo;
+  validWordSet: ReadonlySet<string>;
+  countdown: string;
+  loadError: string | null;
+  shareUrl?: string;
+  title: string;
+}
+
+function WordleBoardSession({
+  puzzle,
+  validWordSet,
+  countdown,
+  loadError,
+  shareUrl,
+  title,
+}: WordleBoardSessionProps) {
+  const initialBoard = useMemo(
+    () =>
+      loadBoardStateForDay(
+        puzzle.daysSinceEpoch,
+        puzzle.puzzleSignature,
+        puzzle.getTargetWord(),
+        validWordSet,
+      ),
+    [puzzle, validWordSet],
+  );
+
+  const [guesses, setGuesses] = useState<string[]>(() => initialBoard.guesses);
+  const [status, setStatus] = useState<GameStatus>(() => initialBoard.status);
+  const [currentInput, setCurrentInput] = useState<string>("");
+  const [stats, setStats] = useState<PlayerStats>(() => {
+    const loaded = loadPlayerStats();
+    if (initialBoard.status !== "playing") {
+      return recordCompletedGame(
+        loaded,
+        initialBoard.daysSinceEpoch,
+        initialBoard.puzzleSignature,
+        initialBoard.status === "won",
+        initialBoard.guesses.length,
+      );
+    }
+    return loaded;
+  });
+
   const [revealingRow, setRevealingRow] = useState<number | null>(null);
   const [shakingRow, setShakingRow] = useState<number | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [copiedFeedback, setCopiedFeedback] = useState(false);
-  const [countdown, setCountdown] = useState<string>(() =>
-    formatCountdownHms(getMsUntilNextUtcMidnight()),
-  );
   const [resolvedDef, setResolvedDef] =
     useState<ResolvedDefinitionState | null>(null);
 
   const toastTimerRef = useRef<number | null>(null);
-  const currentDayRef = useRef<number>(daysSinceEpoch);
 
   const showToast = useCallback((message: string, durationMs = 1900) => {
     if (toastTimerRef.current !== null) {
@@ -195,39 +238,6 @@ export default function WordleWidget({
     },
     [showToast],
   );
-
-  // Live 1-second GMT countdown & automatic 00:00 GMT day rollover
-  useEffect(() => {
-    currentDayRef.current = daysSinceEpoch;
-  }, [daysSinceEpoch]);
-
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      const now = new Date();
-      setCountdown(formatCountdownHms(getMsUntilNextUtcMidnight(now)));
-
-      const latestUtcDay = getUtcDaysSinceEpoch(now);
-      if (latestUtcDay !== currentDayRef.current) {
-        currentDayRef.current = latestUtcDay;
-        setDaysSinceEpoch(latestUtcDay);
-        setGuesses([]);
-        setStatus("playing");
-        setCurrentInput("");
-        setRevealingRow(null);
-        setCopiedFeedback(false);
-        saveBoardState({
-          daysSinceEpoch: latestUtcDay,
-          guesses: [],
-          status: "playing",
-        });
-        showToast("00:00 GMT — Today's new Wordle is live!", 3000);
-      }
-    }, 1000);
-
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [showToast]);
 
   const evaluations = useMemo(() => {
     const target = puzzle.getTargetWord();
@@ -320,6 +330,7 @@ export default function WordleWidget({
 
     saveBoardState({
       daysSinceEpoch: puzzle.daysSinceEpoch,
+      puzzleSignature: puzzle.puzzleSignature,
       guesses: nextGuesses,
       status: nextStatus,
     });
@@ -333,6 +344,7 @@ export default function WordleWidget({
         recordCompletedGame(
           prev,
           puzzle.daysSinceEpoch,
+          puzzle.puzzleSignature,
           isWin,
           nextGuesses.length,
         ),
@@ -777,7 +789,7 @@ export default function WordleWidget({
         </div>
       )}
 
-      {/* Statistics Modal */}
+      {/* Statistics & End-of-Game Modal */}
       {activeModal === "stats" && (
         <div
           className="nw-modal-backdrop"

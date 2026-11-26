@@ -1,75 +1,56 @@
 # Nouse Daily Wordle
 
-A serverless, deterministic, embeddable daily Wordle game built in **React 19 + TypeScript** for the Nouse Puzzles site (`https://puzzles.nouse.co.uk`), powered by the local `words.json` dictionary (5,757 five-letter words).
+**Nouse Daily Wordle** is a clean, serverless, embeddable daily five-letter word puzzle built in **React 19 + TypeScript** for the Nouse Puzzles site (`https://puzzles.nouse.co.uk`). Powered directly by a local `words.json` dictionary, it delivers the exact same daily word to every reader worldwide at midnight GMT without requiring a backend server.
 
 ---
 
-## Summary of Work & Changes Made
+## Features
 
-### New Files Created (`src/Wordle/`)
-
-| File                          | Purpose                                                                                                                                                                                                                                                                                                                                                                        |
-| :---------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/Wordle/wordleEngine.ts`  | Core game logic: word list normalization, deterministic UTC/GMT day indexing, Mulberry32 seeded Fisher–Yates non-repeating word schedule with multi-cycle reshuffling, XOR target obfuscation at rest, exact duplicate-letter guess evaluation, QWERTY key priority upgrading, `localStorage` persistence, streak/statistics tracking, and clipboard share summary formatting. |
-| `src/Wordle/WordleWidget.tsx` | Self-contained, embed-friendly `<WordleWidget />` React component featuring a 6×5 grid, physical + on-screen QWERTY keyboard input, flip/pop/shake animations, live `00:00 GMT` countdown timer, automatic midnight rollover, **Share** results button, **How to Play** modal, and **Statistics** modal.                                                                       |
-| `src/Wordle/WordleWidget.css` | Strictly scoped styles (`.nw-widget` prefix and `--nw-*` custom properties) with host-site button resets and mobile responsiveness down to `~320px–340px` widths without full-page takeover.                                                                                                                                                                                   |
-| `src/Wordle/WordleGame.tsx`   | Standalone Nouse Puzzles page wrapper mounted at `/wordle`, matching the Nouse Puzzles branding with top navigation back to Home and Nouse Tech footer.                                                                                                                                                                                                                        |
-| `src/Wordle/README.md`        | Documentation of architecture, features, algorithms, storage schema, props, and site integration changes.                                                                                                                                                                                                                                                                      |
-
-_(Removed the empty placeholder file `src/Wordle/Wordle_game`.)_
-
-### Existing Files Updated
-
-| File                        | Changes Made                                                                                                                                                                                                                                                                       |
-| :-------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/App.tsx`               | Imported `WordleGame` and registered `<Route path="/wordle" element={<WordleGame />} />` alongside `/` and `/crossword`.                                                                                                                                                           |
-| `src/Puzzles Home/Home.tsx` | Replaced the `"under development"` placeholder under the **Wordle** tab (desktop navbar & mobile slide-out drawer) with an intro blurb and `<Link to="/wordle">` card matching Crossword, and updated the Home welcome text to note that both Crossword and daily Wordle are live. |
-| `src/App.css`               | Added styling for the standalone `/wordle` page shell (`.wordle-page`, `.wordle-page-topbar`, `.wordle-page-heading`, `.wordle-return-home`, `.wordle-page-main`) in Nouse purple (`rgb(94, 50, 130)`) and editorial serif typography.                                             |
+- **Global `00:00 GMT` Daily Puzzle**: Every player worldwide receives the exact same daily puzzle at `00:00:00 GMT` regardless of their local timezone, complete with a live `HH:MM:SS` countdown timer to the next puzzle.
+- **Non-Repeating Word Schedule**: Deterministically shuffles the entire `words.json` dictionary so no word repeats until every single word in the list has been played once, automatically reshuffling into a new cycle once completed.
+- **Classic 6×5 Gameplay & Dual Input**: Supports both physical keyboards (`A–Z`, `Backspace`, `Enter`, `Escape`) and an accessible on-screen QWERTY keyboard with 3D tile-flip reveals, active-letter pop animations, and row-shake validation feedback.
+- **Accurate Duplicate-Letter Coloring**: Scores exact green matches first, awards yellow tiles only up to remaining unmatched occurrences of a letter in the target word, and upgrades keyboard keys monotonically without downgrading.
+- **End-of-Game Word Meaning**: Automatically fetches and displays today's target word, phonetic pronunciation, part of speech, and concise definition via the Free Dictionary API upon finishing a game (win or loss), cached locally with silent fallback on missing entries or offline connections.
+- **Shareable Emoji Grid**: One-click **Share** button copies a spoiler-free emoji summary (`Daily Word #<N> <score>/6` + `🟩`/`🟨`/`⬛` grid + puzzle link) straight to the clipboard.
+- **Persistent Progress & Player Statistics**: Saves current-day progress, games played, win percentage, current/max streaks, and 1–6 guess distribution in `localStorage` while automatically resetting when a new GMT day begins or when `words.json` is updated.
+- **Embed-Friendly & Mobile Responsive**: Scoped `.nw-widget` styling fits seamlessly inside standalone puzzle pages or news articles down to `~320px–340px` mobile screens without clashing with host-site CSS.
 
 ---
 
-## Key Features & Technical Details
+## Technical Details
 
-### 1. Deterministic Daily GMT Word Rotation (Serverless)
+### 1. Deterministic GMT Word Rotation
 
-- **Fixed Epoch**: `2026-11-26T00:00:00Z` (`EPOCH_UTC_MS = Date.UTC(2026, 10, 26, 0, 0, 0)`).
-- **Timezone Independence**: Computes elapsed full UTC days (`daysSinceEpoch`) using `Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())`, ensuring local timezones and daylight saving shifts never desynchronize puzzles across readers worldwide.
-- **Live Countdown & Midnight Rollover**: Displays a live `HH:MM:SS` countdown to the next `00:00:00 GMT` rollover once today's game ends, and automatically resets the board if a player keeps the page open across `00:00 GMT` while keeping historical statistics intact.
+- **Fixed UTC Epoch**: Anchored at `2026-11-26T00:00:00Z` (`EPOCH_UTC_MS = Date.UTC(2026, 10, 26, 0, 0, 0)`).
+- **Timezone-Proof Calculation**: `getUtcDaysSinceEpoch()` uses `Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())` so local timezone offsets and daylight saving transitions never shift puzzle boundaries.
+- **Live Rollover**: A 1-second interval updates the `00:00 GMT` countdown and detects midnight rollovers in real time, resetting the board automatically while keeping player statistics intact.
 
-### 2. Non-Repeating Seeded Word Schedule
+### 2. Seeded Non-Repeating Shuffle & Dual-Pool Dictionary
 
-- **Flexible Dictionary Input**: `normalizeWordList()` accepts both `{ "words": ["which", ...] }` (the current `src/Wordle/words.json` format) and flat `["which", ...]` JSON arrays, normalizing to uppercase, filtering to valid 5-letter A–Z words, and deduplicating while preserving order (`5,757` unique words).
-- **Seeded Fisher–Yates Shuffle**: Uses a deterministic 32-bit PRNG (`mulberry32`) seeded with `0x4e4f5553` (`"NOUS"`) so every reader gets the exact same non-alphabetical sequence and **no word repeats** until all 5,757 words (~15.7 years of daily puzzles) have appeared once.
-- **Explicit Cycle Rollover**:
-  - **Cycle 1** (`daysSinceEpoch < words.length`): Indexes directly into `shuffledWords[daysSinceEpoch]`.
-  - **Cycle 2+** (`daysSinceEpoch >= words.length`): Derives a new deterministic seed per cycle (`deriveCycleSeed`), reshuffles the dictionary, prevents the first word of Cycle `N + 1` from matching the final word of Cycle `N` (zero back-to-back boundary repeats), and displays a **Cycle Complete** status banner in the UI.
+- **Curated Answers + Full Guess Pool (`words.json`)**: `parseDictionarySource()` splits `words.json` into **2,252 common everyday English target words** (`words`, used for daily answers so puzzles are always fair, recognizable, and well-covered by the dictionary API) and **6,827 extra valid guesses** (`allowedGuesses`), allowing all **9,079** 5-letter words to be submitted as guesses. Flat `["...", ...]` arrays are also supported automatically.
+- **Mulberry32 + Fisher–Yates**: `seededShuffle()` pairs a deterministic 32-bit Mulberry32 PRNG (`BASE_SHUFFLE_SEED = 0x1185`) with Fisher–Yates shuffling so every target word appears once per cycle (~6.2 years) in a non-alphabetical order.
+- **Multi-Cycle Continuity**: For `daysSinceEpoch >= words.length`, `deriveCycleSeed()` generates a fresh deterministic seed per cycle, swaps any boundary collision so the last word of Cycle `N` never repeats as the first word of Cycle `N + 1`, and displays a **Cycle Complete** status banner.
 
-### 3. State Persistence & Anti-Cheat
+### 3. State Persistence, Dictionary-Change Reset & Anti-Cheat
 
-- **Board State (`nouse_wordle_board_v1`)**: Stores `{ daysSinceEpoch, guesses, status }` in `localStorage`. On refresh during the same UTC day, guesses are re-validated against `words.json` and re-scored deterministically against today's word so players cannot replay or tamper with their status.
-- **Statistics (`nouse_wordle_stats_v1`)**: Tracks `gamesPlayed`, `gamesWon`, `currentStreak`, `maxStreak`, 1–6 `guessDistribution`, and `lastCompletedDay` (which prevents double-counting refreshes and verifies consecutive-day win streaks).
-- **Target Word Protection**: Today's answer is never written to `localStorage`, React state, or DOM attributes prior to completion; in memory it is stored as XOR-masked character codes inside a closure and decoded transiently only during guess evaluation or loss reveal.
+- **Board Storage (`nouse_wordle_board_v2`)**: Persists `{ daysSinceEpoch, puzzleSignature, guesses, status }` in `localStorage`. Refreshing on the same GMT day restores and re-validates all submitted guesses so players cannot replay a finished daily puzzle.
+- **Automatic `words.json` Signature Invalidation**: Computes a fast 32-bit FNV-1a hex fingerprint (`puzzleSignature`) combining the UTC day, word-list hash, and target word, and keys `<WordleBoardSession key={puzzle.puzzleSignature} />`. Swapping or editing `words.json` immediately invalidates stale board state without exposing the answer in plain text.
+- **Target Obfuscation at Rest**: Today's word is never stored in plain text in `localStorage`, React state, or DOM attributes prior to game end; in memory it is held as XOR-masked character codes inside a closure and decoded transiently during evaluation or loss reveal.
 
-### 4. Exact Duplicate-Letter Scoring & Keyboard Upgrading
+### 4. Two-Pass Duplicate-Letter Scoring & Keyboard Priority
 
-- **Two-Pass Evaluation (`evaluateGuess`)**:
-  1. **Pass 1 (Green / `correct`)**: Marks exact position matches first and decrements available letter counts in the target word.
-  2. **Pass 2 (Yellow / `present` vs. Gray / `absent`)**: Scans remaining letters left-to-right, awarding yellow only up to remaining unmatched occurrences of that letter in the target word, and gray otherwise.
-- **Keyboard Priority (`computeKeyboardStates`)**: Upgrades on-screen keys strictly monotonically (`unused` -> `absent` -> `present` -> `correct`) so a green key never downgrades to yellow or gray on subsequent guesses.
+- **`evaluateGuess(guess, target)`**:
+  1. **Pass 1 (`correct` / Green)**: Identifies exact positional matches first and decrements remaining available letter counts from the target word.
+  2. **Pass 2 (`present` / Yellow vs. `absent` / Gray)**: Scans remaining positions left-to-right, marking yellow only while unmatched target occurrences remain.
+- **`computeKeyboardStates()`**: Enforces strict priority (`unused < absent < present < correct`) so green keys never downgrade on subsequent guesses.
 
-### 5. Embed-Friendly News-Site UX
+### 5. End-of-Game Dictionary API Lookup & Caching
 
-- **Scoped Styling**: All widget selectors live under `.nw-widget` in `WordleWidget.css` with explicit button resets so host site stylesheets (`index.css`, `App.css`, or article CSS) cannot distort tiles or keyboard keys.
-- **Safe Keyboard Listener**: Physical keyboard input (`A–Z`, `Backspace`, `Enter`, `Escape`) ignores modifier shortcuts (`Ctrl`/`Cmd`/`Alt`) and ignores focus inside external `<input>`, `<textarea>`, or `contentEditable` elements so search bars and comment boxes on a host article page work normally.
-- **Mobile Responsive**: Fluid grid tiles and flex QWERTY keys scale cleanly down to `320px–340px` viewports with `touch-action: manipulation`.
-- **Share Summary**: Copies an emoji grid (`Daily Word #<N> <score>/6` + `🟩`/`🟨`/`⬛` rows + puzzle URL) to the clipboard via `navigator.clipboard.writeText` with a fallback for older browsers.
-- **End-of-Game Word Definition & Caching**: Once today's game finishes (win or loss), fetches `https://api.dictionaryapi.dev/api/v2/entries/en/<word>` to display the target word, phonetic spelling (if available), part of speech, and primary definition inside both the end-of-game modal and inline completion summary card. Shows a subtle `"Loading definition..."` indicator in flight, caches lookups in `localStorage` under `def_<WORD>` (e.g., `def_CRANE`) to prevent repeat API requests on modal reopen or refresh, and fails silently (hiding the definition block completely) on timeouts, network errors, or `404` responses.
+- **Endpoint**: Fetches `https://api.dictionaryapi.dev/api/v2/entries/en/${targetWord.toLowerCase()}` only after `status` transitions to `"won"` or `"lost"`.
+- **Response Parsing**: Extracts `word`, `phonetic` (falling back to the first non-empty `phonetics[].text`), `meanings[0].partOfSpeech`, and `meanings[0].definitions[0].definition`.
+- **Caching & Silent Fallback**: Caches definitions in `localStorage` under `def_<WORD>` (e.g., `def_CRANE`) so modal reopens and page refreshes make zero duplicate network calls. Uses a `6.5s` `AbortController` timeout and hides the definition UI silently on network errors, timeouts, or `404` responses.
 
----
-
-## Embedding `<WordleWidget />` Anywhere
-
-`<WordleWidget />` can be used standalone on `/wordle` or dropped directly into any article or section:
+### 6. Embedding `<WordleWidget />` & Commands
 
 ```tsx
 import WordleWidget from "./Wordle/WordleWidget";
@@ -84,27 +65,49 @@ export function ArticleEmbed() {
 }
 ```
 
-### Optional Props (`WordleWidgetProps`)
+| Prop        | Type                              | Default                | Description                                                     |
+| :---------- | :-------------------------------- | :--------------------- | :-------------------------------------------------------------- |
+| `wordsData` | `string[] \| { words: string[] }` | Local `./words.json`   | Custom word list array or `{ words }` object.                   |
+| `wordsUrl`  | `string`                          | `undefined`            | Optional URL to fetch an external `words.json` file at runtime. |
+| `shareUrl`  | `string`                          | `window.location.href` | Link appended to the copied emoji share summary.                |
+| `title`     | `string`                          | `"Daily Wordle"`       | Heading shown in the widget header (`<title> #<puzzleNumber>`). |
 
-| Prop        | Type                              | Default                | Description                                                         |
-| :---------- | :-------------------------------- | :--------------------- | :------------------------------------------------------------------ |
-| `wordsData` | `string[] \| { words: string[] }` | Local `./words.json`   | Custom word list array or `{ words }` object.                       |
-| `wordsUrl`  | `string`                          | `undefined`            | Optional URL to fetch an external `words.json` file at runtime.     |
-| `shareUrl`  | `string`                          | `window.location.href` | Link appended at the bottom of the copied emoji share text.         |
-| `title`     | `string`                          | `"Daily Wordle"`       | Heading displayed in the widget header (`<title> #<puzzleNumber>`). |
+```bash
+npm run dev          # Start local Vite dev server
+npm run build        # Run TypeScript check and build production bundle
+npm run lint         # Run ESLint checks
+npm run format-check # Check Prettier formatting
+```
 
 ---
 
-## Running & Building
+_Yours truly, Utkarsh Singh_
 
-```bash
-# Start local Vite dev server
-npm run dev
+---
 
-# Type-check and build production bundle
-npm run build
+## All Changes Made & Development Process
 
-# Lint and check formatting
-npm run lint
-npm run format-check
-```
+### Development Process
+
+1. **Codebase & Architecture Audit**: Inspected the existing Nouse Puzzles React + TypeScript + Vite architecture, router setup (`App.tsx`), home navigation (`Home.tsx`), Crossword game implementation, and `words.json` dictionary structure.
+2. **Core Engine Implementation (`wordleEngine.ts`)**: Built deterministic UTC/GMT epoch day calculation, Mulberry32 Fisher–Yates non-repeating word scheduling with Cycle 2+ boundary-safe reshuffling, XOR target-word obfuscation, two-pass duplicate-letter evaluation, keyboard priority computation, `localStorage` board/stats persistence, and emoji share text generation.
+3. **Scoped Widget & Standalone Page (`WordleWidget.tsx`, `WordleWidget.css`, `WordleGame.tsx`)**: Created the responsive `.nw-widget` component (supporting physical and on-screen QWERTY input, **How to Play** and **Statistics** modals, and `320px–340px` mobile viewports) alongside the Nouse-branded `/wordle` page shell.
+4. **Site Navigation Integration (`App.tsx`, `Home.tsx`, `App.css`)**: Wired `/wordle` into React Router and connected the **Wordle** tab in both the desktop navbar and mobile drawer on the Nouse Puzzles home page.
+5. **Free Dictionary API Integration**: Extended the end-of-game summary card and modal to fetch, display, and cache (`def_<WORD>`) word definitions, phonetics, and parts of speech from `dictionaryapi.dev` with a subtle loading indicator and silent error/404 handling.
+6. **Dictionary-Change Auto-Reset (`puzzleSignature`)**: Added FNV-1a word-list and puzzle fingerprinting (`nouse_wordle_board_v2` + React session keying) so replacing or editing `words.json` immediately resets any stale saved board state while preserving same-day anti-cheat persistence.
+7. **Verification**: Validated TypeScript (`tsc -b`), ESLint, Prettier, Vite production bundling (`vite build`), and automated assertions covering duplicate-letter scoring, full-cycle non-repetition, dictionary caching, and persistence.
+
+### Files Created & Modified
+
+| File                          | Status  | Summary of Changes                                                                                                                                                                 |
+| :---------------------------- | :------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/Wordle/wordleEngine.ts`  | Created | Deterministic GMT schedule, seeded shuffle, `puzzleSignature` board persistence, stats tracking, duplicate-letter scoring, share formatter, and cached Free Dictionary API client. |
+| `src/Wordle/WordleWidget.tsx` | Created | Embeddable Wordle game widget, keyboard handlers, animations, countdown timer, definition display, and **How to Play** / **Statistics** modals.                                    |
+| `src/Wordle/WordleWidget.css` | Created | Scoped `.nw-widget` styles, Nouse purple theme variables, host-site button resets, definition card styling, and mobile breakpoints.                                                |
+| `src/Wordle/WordleGame.tsx`   | Created | Standalone `/wordle` page wrapper with Nouse Puzzles top bar, Home link, and Nouse Tech footer.                                                                                    |
+| `src/Wordle/README.md`        | Created | Project overview, features, technical documentation, author sign-off, development process, and changelog.                                                                          |
+| `src/Wordle/words.json`       | Updated | Structured into 2,252 curated common English daily target `words` + 6,827 `allowedGuesses` (9,079 total valid 5-letter guesses).                                                   |
+| `src/App.tsx`                 | Updated | Added the `/wordle` route pointing to `WordleGame`.                                                                                                                                |
+| `src/Puzzles Home/Home.tsx`   | Updated | Linked the **Wordle** navigation option on the home page to `/wordle` and updated the home introduction text.                                                                      |
+| `src/App.css`                 | Updated | Added `.wordle-page` header, layout, and responsive return-home link styles.                                                                                                       |
+| `src/Wordle/Wordle_game`      | Removed | Deleted empty placeholder file.                                                                                                                                                    |
